@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Abandoned but not Forgotten — orbit mark -->
+  <rect width="48" height="48" fill="#0a0a0c"/>
+  <circle cx="24" cy="24" r="10" fill="none" stroke="#34343e" stroke-width="2"/>
+  <circle cx="24" cy="24" r="4" fill="#7ecfd4"/>
+  <ellipse cx="24" cy="24" rx="19" ry="7" fill="none" stroke="#d29a4a" stroke-width="1.5" transform="rotate(-24 24 24)"/>
+  <circle cx="40.5" cy="15.5" r="2.5" fill="#d29a4a"/>
+</svg>
