@@ -74,7 +74,7 @@ export const COMPONENT_ASSEMBLIES = [
     visibleGeometry: 'Upper faceted polygonal cabin structure, front face triangular forward-looking windows, and upper structural bulkheads.',
     verificationStatus: 'Visible Exterior Assembly (Internal cabin controls/avionics NOT modeled)',
     nodePrefixes: ['polySurfac', 'pCube2', 'pCube27', 'pCube28', 'pCube29'],
-    breakdownOffset: [0, 4.2, 0], // Lifts straight up along Y axis
+    breakdownOffset: [0, 2.4, 0], // Lifts vertically along +Y axis
     step: 1
   },
   {
@@ -86,7 +86,7 @@ export const COMPONENT_ASSEMBLIES = [
     visibleGeometry: 'Overhead cylindrical docking tunnel collar, antenna mast, and steerable parabolic dish assembly.',
     verificationStatus: 'Visible Exterior Assembly',
     nodePrefixes: ['group51', 'group32', 'pCone7', 'pPipe1', 'pPipe2', 'polySurfa2', 'polySurfa3', 'polySurfa4'],
-    breakdownOffset: [0, 7.6, 0], // Lifts high above cabin along Y axis
+    breakdownOffset: [0, 3.9, 0], // Lifts above cabin along +Y axis
     step: 3
   },
   {
@@ -98,7 +98,7 @@ export const COMPONENT_ASSEMBLIES = [
     visibleGeometry: 'Forward egress ladder, rectangular work porch, and tubular safety handrails.',
     verificationStatus: 'Visible Exterior Assembly',
     nodePrefixes: ['polySurfa1', 'pCube3', 'pCylinde11', 'pCylinder2'],
-    breakdownOffset: [0, 1.5, 3.6], // Translates forward along +Z and slightly up
+    breakdownOffset: [0, 0.8, 1.8], // Translates forward along +Z and slightly up
     step: 2
   },
   {
@@ -134,7 +134,7 @@ export const COMPONENT_ASSEMBLIES = [
     visibleGeometry: 'Four primary cantilevered struts, dual secondary V-struts per leg, and four circular landing pads.',
     verificationStatus: 'Visible Exterior Assembly',
     nodePrefixes: ['group31', 'pCylinder3'],
-    breakdownOffset: [0, -2.2, 0], // Deploys downward and expands radially
+    breakdownOffset: [0, -1.1, 0], // Deploys downward and expands radially
     step: 2
   },
   {

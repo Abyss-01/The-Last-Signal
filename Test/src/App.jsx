@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Lenis from 'lenis';
 import Viewport3D from './components/Viewport3D';
 import IglooHeader from './components/IglooHeader';
 import ScrollStages, { SCROLL_CHAPTERS } from './components/ScrollStages';
@@ -8,6 +9,7 @@ import InfoPanel from './components/InfoPanel';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from './utils/motion';
+import { soundEngine } from './utils/audio';
 
 export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0.0);
@@ -17,11 +19,15 @@ export default function App() {
   const [selectedAssemblyId, setSelectedAssemblyId] = useState(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
   const [autoRotate, setAutoRotate] = useState(false);
+  const [cameraPreset, setCameraPreset] = useState('orbit');
+  const [isAudioOn, setIsAudioOn] = useState(false);
 
   // Loading & Error states
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState(null);
+
+  const lenisRef = useRef(null);
 
   const handleLoadingComplete = useCallback(() => setIsLoaded(true), []);
   const handleLoadError = useCallback((err) => setLoadError(err), []);
@@ -35,27 +41,59 @@ export default function App() {
     });
   }, []);
 
-  // Window Scroll Listener mapping window scroll height to 0.0 - 1.0
+  // Lenis Ultra-Silky Smooth Scroll System
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY || window.pageYOffset;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = docHeight > 0 ? Math.min(1.0, Math.max(0.0, scrollY / docHeight)) : 0.0;
+    if (prefersReducedMotion) {
+      const handleScroll = () => {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? Math.min(1.0, Math.max(0.0, scrollY / docHeight)) : 0.0;
+        setScrollProgress(progress);
+        const chapterIdx = Math.min(
+          SCROLL_CHAPTERS.length - 1,
+          Math.floor(progress * (SCROLL_CHAPTERS.length - 0.2))
+        );
+        setActiveChapterIndex(chapterIdx);
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      handleScroll();
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
 
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.5,
+      infinite: false
+    });
+    lenisRef.current = lenis;
+
+    let rafId;
+    function raf(time) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+
+    lenis.on('scroll', ({ scroll, limit }) => {
+      const progress = limit > 0 ? Math.min(1.0, Math.max(0.0, scroll / limit)) : 0.0;
       setScrollProgress(progress);
 
-      // Determine active chapter (0 to 4)
       const chapterIdx = Math.min(
         SCROLL_CHAPTERS.length - 1,
         Math.floor(progress * (SCROLL_CHAPTERS.length - 0.2))
       );
       setActiveChapterIndex(chapterIdx);
-    };
+    });
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+      lenisRef.current = null;
+    };
+  }, [prefersReducedMotion]);
 
   // Jump to Chapter
   const handleJumpToChapter = useCallback((index) => {
@@ -63,25 +101,45 @@ export default function App() {
     const targetRatio = index / (SCROLL_CHAPTERS.length - 1);
     const targetScrollY = targetRatio * docHeight;
 
-    window.scrollTo({
-      top: targetScrollY,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth'
-    });
+    if (lenisRef.current && !prefersReducedMotion) {
+      lenisRef.current.scrollTo(targetScrollY, { duration: 1.1 });
+    } else {
+      window.scrollTo({
+        top: targetScrollY,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+    }
+    soundEngine.playStageTransition();
   }, [prefersReducedMotion]);
 
   // Reassemble action
   const handleReassemble = useCallback(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth'
-    });
+    if (lenisRef.current && !prefersReducedMotion) {
+      lenisRef.current.scrollTo(0, { duration: 1.2 });
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
+    }
     setSelectedAssemblyId(null);
+    setCameraPreset('orbit');
+    soundEngine.playChirp(520, 0.08, 0.08);
   }, [prefersReducedMotion]);
+
+  // Toggle Audio
+  const handleToggleAudio = useCallback(() => {
+    const active = soundEngine.toggle();
+    setIsAudioOn(active);
+  }, []);
 
   // Hover Handler from 3D Viewport
   const handleHoverComponent = useCallback((component, pos) => {
     setHoveredComponent(component);
     setMousePos(pos);
+    if (component) {
+      soundEngine.playChirp(1200, 0.02, 0.03);
+    }
   }, []);
 
   // Keyboard Shortcuts
@@ -93,8 +151,22 @@ export default function App() {
         handleReassemble();
       } else if (e.key === 'a' || e.key === 'A') {
         setAutoRotate((prev) => !prev);
+      } else if (e.key === 'm' || e.key === 'M') {
+        handleToggleAudio();
       } else if (e.key === 'd' || e.key === 'D') {
         setIsDossierOpen((prev) => !prev);
+      } else if (e.key === '1') {
+        setCameraPreset('orbit');
+        soundEngine.playChirp(700, 0.03, 0.05);
+      } else if (e.key === '2') {
+        setCameraPreset('eva');
+        soundEngine.playChirp(800, 0.03, 0.05);
+      } else if (e.key === '3') {
+        setCameraPreset('top');
+        soundEngine.playChirp(900, 0.03, 0.05);
+      } else if (e.key === '4') {
+        setCameraPreset('low');
+        soundEngine.playChirp(600, 0.03, 0.05);
       } else if (e.key === 'Escape') {
         setSelectedAssemblyId(null);
         setIsDossierOpen(false);
@@ -107,7 +179,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleReassemble, handleJumpToChapter, activeChapterIndex]);
+  }, [handleReassemble, handleJumpToChapter, handleToggleAudio, activeChapterIndex]);
 
   return (
     <div className="igloo-app-root">
@@ -122,6 +194,7 @@ export default function App() {
         onLoadingProgress={setLoadingProgress}
         onLoadingComplete={handleLoadingComplete}
         onError={handleLoadError}
+        cameraPreset={cameraPreset}
       />
 
       {/* Floating Cursor Hover Card */}
@@ -138,6 +211,13 @@ export default function App() {
         isDossierOpen={isDossierOpen}
         autoRotate={autoRotate}
         onToggleAutoRotate={() => setAutoRotate((prev) => !prev)}
+        cameraPreset={cameraPreset}
+        onSelectPreset={(p) => {
+          setCameraPreset(p);
+          soundEngine.playChirp(750, 0.03, 0.05);
+        }}
+        isAudioOn={isAudioOn}
+        onToggleAudio={handleToggleAudio}
       />
 
       {/* Vertical Timeline Progress HUD */}

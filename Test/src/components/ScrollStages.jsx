@@ -73,6 +73,55 @@ export default function ScrollStages({ activeChapterIndex, onJumpToChapter }) {
           </div>
         </section>
       ))}
+
+      {/* Exhibit Colophon & Technical Footer */}
+      <footer className="exhibit-colophon-section" aria-label="Apollo Lunar Module Exhibit Colophon">
+        <div className="colophon-card">
+          <div className="colophon-header">
+            <span className="colophon-tag">EXHIBIT ARCHIVE // APOLLO LM-5</span>
+            <h2 className="colophon-title">Mission Engineering Archive</h2>
+            <p className="colophon-subtitle">
+              Curated spatial deconstruction of Grumman Aircraft Engineering Corp. Lunar Excursion Module architecture.
+            </p>
+          </div>
+
+          <div className="colophon-stats-grid">
+            <div className="colophon-stat-item">
+              <span className="stat-label">TOTAL VEHICLE MASS</span>
+              <span className="stat-value">15,103 kg</span>
+              <span className="stat-note">Gross Lunar Liftoff / Landing</span>
+            </div>
+            <div className="colophon-stat-item">
+              <span className="stat-label">DESCENT DELTA-V</span>
+              <span className="stat-value">2,470 m/s</span>
+              <span className="stat-note">Throttleable DPS Engine</span>
+            </div>
+            <div className="colophon-stat-item">
+              <span className="stat-label">SURFACE STAY DURATION</span>
+              <span className="stat-value">21.6 hours</span>
+              <span className="stat-note">Tranquility Base (Apollo 11)</span>
+            </div>
+            <div className="colophon-stat-item">
+              <span className="stat-label">CREW CAPACITY</span>
+              <span className="stat-value">2 Astronauts</span>
+              <span className="stat-note">Stand-up Egress Workstation</span>
+            </div>
+          </div>
+
+          <div className="colophon-actions">
+            <button
+              className="btn-colophon-cta"
+              onClick={() => onJumpToChapter(0)}
+              aria-label="Return to assembled flight configuration"
+            >
+              ↑ RETURN TO FLIGHT CONFIGURATION
+            </button>
+            <div className="colophon-sources-note">
+              Primary Sources: NASA SP-4029 // Apollo 11 Lunar Surface Journal (ALSJ) // Grumman LM News Reference
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

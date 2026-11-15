@@ -15,7 +15,8 @@ export default function Viewport3D({
   prefersReducedMotion = false,
   onLoadingProgress,
   onLoadingComplete,
-  onError
+  onError,
+  cameraPreset = 'orbit'
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -31,6 +32,10 @@ export default function Viewport3D({
   const mousePosRef = useRef({ x: -1000, y: -1000, clientX: 0, clientY: 0, moved: false });
   const isDraggingRef = useRef(false);
   const downPosRef = useRef({ x: 0, y: 0 });
+
+  // Camera preset animation target
+  const presetTargetRef = useRef(null);
+  const baseCamPos = useRef(new THREE.Vector3(7.4, 3.4, 7.8));
 
   // Stable callback refs to prevent any effect re-execution
   const onHoverComponentRef = useRef(onHoverComponent);
@@ -57,6 +62,29 @@ export default function Viewport3D({
       controlsRef.current.autoRotateSpeed = 0.6;
     }
   }, [autoRotate, prefersReducedMotion]);
+
+  // Camera Presets handler
+  useEffect(() => {
+    if (!cameraPreset) return;
+    const p = currentProgressRef.current;
+    const dolly = 1.0 + 0.38 * p;
+
+    let targetCam = new THREE.Vector3(7.4 * dolly, (3.2 + 1.2 * p), 7.8 * dolly);
+    let targetFocus = new THREE.Vector3(0, 1.8 + 1.2 * p, 0);
+
+    if (cameraPreset === 'eva') {
+      targetCam.set(0.4, 2.2 + 0.8 * p, 8.8 * dolly);
+      targetFocus.set(0, 1.8 + 0.8 * p, 1.0 * p);
+    } else if (cameraPreset === 'top') {
+      targetCam.set(0.05, 14.0 + 3.0 * p, 0.2);
+      targetFocus.set(0, 2.2 + 1.2 * p, 0);
+    } else if (cameraPreset === 'low') {
+      targetCam.set(8.2 * dolly, 0.5, 3.8 * dolly);
+      targetFocus.set(0, 1.6 + 0.8 * p, 0);
+    }
+
+    presetTargetRef.current = { cam: targetCam, target: targetFocus };
+  }, [cameraPreset]);
 
   // Setup WebGL Scene with High-Performance Optimizations
   useEffect(() => {
@@ -85,7 +113,7 @@ export default function Viewport3D({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -93,66 +121,99 @@ export default function Viewport3D({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.target.set(0, 2.0, 0); // Focus near vehicle center of mass
+    controls.target.set(0, 1.8, 0); // Focus near vehicle center of mass
     controls.minDistance = 3.2;
-    controls.maxDistance = 18.0;
+    controls.maxDistance = 24.0;
     controls.maxPolarAngle = Math.PI / 2 + 0.02; // Prevent going underneath lunar surface
     controls.enablePan = false;
     controls.autoRotate = false;
     controlsRef.current = controls;
 
     // Lighting: Sun key light, Earthshine fill, ambient, and back rim light
-    const sunLight = new THREE.DirectionalLight(0xfff6e8, 3.5);
-    sunLight.position.set(12, 16, 10);
+    const sunLight = new THREE.DirectionalLight(0xfff8ee, 3.8);
+    sunLight.position.set(14, 18, 12);
     scene.add(sunLight);
 
-    const earthshine = new THREE.DirectionalLight(0x4a789c, 1.1);
-    earthshine.position.set(-10, 6, -8);
+    const earthshine = new THREE.DirectionalLight(0x38bdf8, 1.4);
+    earthshine.position.set(-12, 8, -10);
     scene.add(earthshine);
 
-    const rimLight = new THREE.DirectionalLight(0xffeedd, 0.9);
-    rimLight.position.set(0, 10, -14);
+    const rimLight = new THREE.DirectionalLight(0xffeedd, 1.8);
+    rimLight.position.set(0, 12, -15);
     scene.add(rimLight);
 
-    const ambientLight = new THREE.AmbientLight(0x181f2c, 1.4);
+    const groundBounce = new THREE.DirectionalLight(0x1e293b, 0.8);
+    groundBounce.position.set(0, -6, 0);
+    scene.add(groundBounce);
+
+    const ambientLight = new THREE.AmbientLight(0x111622, 1.2);
     scene.add(ambientLight);
 
-    // Cosmic starfield for lunar sky depth
-    const starCount = 500;
+    // Cosmic starfield for lunar sky depth (two layers)
+    const starCount = 800;
     const starGeo = new THREE.BufferGeometry();
     const starPos = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount * 3; i += 3) {
-      const r = 28 + Math.random() * 32;
+      const r = 26 + Math.random() * 38;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       starPos[i] = r * Math.sin(phi) * Math.cos(theta);
-      starPos[i + 1] = Math.max(0.6, r * Math.cos(phi));
+      starPos[i + 1] = Math.max(0.4, r * Math.cos(phi));
       starPos[i + 2] = r * Math.sin(phi) * Math.sin(theta);
     }
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
     const starMat = new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 0.12,
+      size: 0.11,
       transparent: true,
-      opacity: 0.65,
+      opacity: 0.7,
       sizeAttenuation: true
     });
     const stars = new THREE.Points(starGeo, starMat);
     scene.add(stars);
 
-    // Minimalist Circular Ground Baseline (Igloo aesthetic)
-    const groundGeo = new THREE.CylinderGeometry(6.6, 6.8, 0.1, 48);
-    const groundMat = new THREE.MeshBasicMaterial({ color: 0x090c12 });
+    // High-Tech Telemetry Ground Pedestal (Igloo Aesthetic)
+    const groundGeo = new THREE.CylinderGeometry(7.2, 7.5, 0.1, 64);
+    const groundMat = new THREE.MeshBasicMaterial({ color: 0x07090e });
     const groundMesh = new THREE.Mesh(groundGeo, groundMat);
     groundMesh.position.y = -0.05;
     scene.add(groundMesh);
 
-    const ringGeo = new THREE.RingGeometry(3.28, 3.3, 64);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x1f2937, side: THREE.DoubleSide });
-    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-    ringMesh.rotation.x = -Math.PI / 2;
-    ringMesh.position.y = 0.005;
-    scene.add(ringMesh);
+    // Concentric Telemetry Rings
+    const ringRadii = [
+      { r: 1.8, color: 0x1e293b, opacity: 0.35, width: 0.015 },
+      { r: 3.28, color: 0x38bdf8, opacity: 0.75, width: 0.025 },
+      { r: 4.8, color: 0x1e293b, opacity: 0.45, width: 0.015 },
+      { r: 6.4, color: 0x1e293b, opacity: 0.3, width: 0.015 }
+    ];
+    ringRadii.forEach(({ r, color, opacity, width }, idx) => {
+      const rGeo = new THREE.RingGeometry(r, r + width, 64);
+      const rMat = new THREE.MeshBasicMaterial({
+        color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity
+      });
+      const rMesh = new THREE.Mesh(rGeo, rMat);
+      rMesh.rotation.x = -Math.PI / 2;
+      rMesh.position.y = 0.005 + idx * 0.001;
+      scene.add(rMesh);
+    });
+
+    // Crosshair Telemetry Lines on Ground Pad
+    const crossGeo = new THREE.BufferGeometry();
+    const crossPoints = new Float32Array([
+      -6.8, 0.01, 0,  6.8, 0.01, 0,
+      0, 0.01, -6.8,  0, 0.01, 6.8
+    ]);
+    crossGeo.setAttribute('position', new THREE.BufferAttribute(crossPoints, 3));
+    const crossMat = new THREE.LineBasicMaterial({
+      color: 0x1e293b,
+      transparent: true,
+      opacity: 0.5
+    });
+    const crossLines = new THREE.LineSegments(crossGeo, crossMat);
+    scene.add(crossLines);
 
     // Resize Handler
     const handleResize = () => {
@@ -180,15 +241,42 @@ export default function Viewport3D({
       if (meshes.length > 0) {
         const targetP = targetScrollProgressRef.current;
         const diff = targetP - currentProgressRef.current;
-        if (Math.abs(diff) > 0.0002) {
+        if (Math.abs(diff) > 0.0001) {
           // Butter-smooth damped lerp
           currentProgressRef.current += diff * 0.085;
           applyBreakdownProgress(meshes, currentProgressRef.current);
+        }
+      }
 
-          // Gently elevate camera target and expand framing if user is not actively orbiting
-          if (!isDraggingRef.current && controls) {
-            controls.target.y = 2.0 + 0.6 * currentProgressRef.current;
-          }
+      const p = currentProgressRef.current;
+
+      // Cinematic Dynamic Camera Framing:
+      // Smoothly dollies out as the spacecraft explodes so every single component remains in view!
+      if (!isDraggingRef.current && controls && !presetTargetRef.current) {
+        const targetFocusY = 1.8 + 1.2 * p;
+        controls.target.y += (targetFocusY - controls.target.y) * 0.08;
+
+        // Dolly factor (+38% at full explosion)
+        const dolly = 1.0 + 0.38 * p;
+        // Subtle organic zero-G breathing drift
+        const driftX = Math.sin(time * 0.0006) * 0.05;
+        const driftY = Math.cos(time * 0.0008) * 0.03;
+        const driftZ = Math.sin(time * 0.0005) * 0.05;
+
+        const desiredCamX = baseCamPos.current.x * dolly + driftX;
+        const desiredCamY = (baseCamPos.current.y + 1.2 * p) + driftY;
+        const desiredCamZ = baseCamPos.current.z * dolly + driftZ;
+
+        camera.position.x += (desiredCamX - camera.position.x) * 0.07;
+        camera.position.y += (desiredCamY - camera.position.y) * 0.07;
+        camera.position.z += (desiredCamZ - camera.position.z) * 0.07;
+      } else if (presetTargetRef.current) {
+        // Smoothly interpolate camera position & target to chosen preset
+        const { cam, target } = presetTargetRef.current;
+        camera.position.lerp(cam, 0.07);
+        controls.target.lerp(target, 0.07);
+        if (camera.position.distanceTo(cam) < 0.06 && controls.target.distanceTo(target) < 0.06) {
+          presetTargetRef.current = null;
         }
       }
 
@@ -284,9 +372,6 @@ export default function Viewport3D({
 
         const hierarchyData = prepareModelHierarchy(root);
         meshesRef.current = hierarchyData.allMeshes;
-        window.__scene = scene;
-        window.__camera = cameraRef.current;
-        window.__meshes = hierarchyData.allMeshes;
 
         // Apply initial progress
         applyBreakdownProgress(hierarchyData.allMeshes, targetScrollProgressRef.current);
@@ -342,6 +427,7 @@ export default function Viewport3D({
 
   const handlePointerDown = (e) => {
     isDraggingRef.current = true;
+    presetTargetRef.current = null; // Clear preset animation when user interacts
     downPosRef.current = { x: e.clientX, y: e.clientY };
     if (containerRef.current) containerRef.current.style.cursor = 'grabbing';
   };
@@ -349,6 +435,17 @@ export default function Viewport3D({
   const handlePointerUp = (e) => {
     isDraggingRef.current = false;
     if (containerRef.current) containerRef.current.style.cursor = 'grab';
+
+    // Store updated manual camera orientation normalized by dolly factor
+    if (cameraRef.current) {
+      const p = currentProgressRef.current;
+      const dolly = 1.0 + 0.38 * p;
+      baseCamPos.current.set(
+        cameraRef.current.position.x / dolly,
+        cameraRef.current.position.y - 1.2 * p,
+        cameraRef.current.position.z / dolly
+      );
+    }
 
     // Disambiguate dragging to orbit camera vs clicking to select assembly
     const dx = e.clientX - downPosRef.current.x;
@@ -367,7 +464,9 @@ export default function Viewport3D({
     mousePosRef.current.moved = false;
     hoveredAssemblyRef.current = null;
     setHoveredAssemblyState(null);
-    onHoverComponent(null, null);
+    if (onHoverComponentRef.current) {
+      onHoverComponentRef.current(null, null);
+    }
   };
 
   // Highlighting: subtle cyan glow on hover, bright cyan glow on selection
@@ -413,4 +512,3 @@ export default function Viewport3D({
     />
   );
 }
-

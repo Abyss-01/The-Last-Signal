@@ -49,37 +49,37 @@ export function calculateTargetOffset(mesh, assembly, geomCenter) {
   switch (assembly ? assembly.id : '') {
     case 'ascent_cabin':
       // Elevates vertically along +Y
-      target.set(0, 4.2, 0);
+      target.set(0, 2.4, 0);
       break;
 
     case 'antennas_docking':
       // Lifts high above the ascent cabin roof
-      target.set(0, 7.6, 0);
+      target.set(0, 3.9, 0);
       break;
 
     case 'egress_ladder':
-      // Translates forward along +Z with ascent lift
-      target.set(0, 1.5, 3.6);
+      // Translates forward along +Z with elevation
+      target.set(0, 0.8, 1.8);
       break;
 
     case 'rcs_thrusters':
       // RCS quads expand outward radially in 4 diagonal quadrants + ascent lift
-      target.set(dirX * 3.2, 4.2 + 0.4, dirZ * 3.2);
+      target.set(dirX * 1.6, 2.4 + 0.3, dirZ * 1.6);
       break;
 
     case 'spherical_tanks':
       // Spherical fuel and helium tanks expand outward from descent bays
-      target.set(dirX * 2.8, 0.5, dirZ * 2.8);
+      target.set(dirX * 1.4, 0.3, dirZ * 1.4);
       break;
 
     case 'landing_gear':
       // Landing gear drops cleanly downward along -Y as an intact unit
-      target.set(0, -2.2, 0);
+      target.set(0, -1.1, 0);
       break;
 
     case 'structural_struts':
       // Tubular conduits and tie rods drift outward
-      target.set(dirX * 2.0, -0.6, dirZ * 2.0);
+      target.set(dirX * 1.0, -0.3, dirZ * 1.0);
       break;
 
     case 'descent_stage':
@@ -254,52 +254,52 @@ export function applyBreakdownProgress(meshes, progress) {
     switch (assemblyId) {
       case 'ascent_cabin':
         // Elevates vertically during Stage Separation
-        oy = 4.2 * pAscent;
+        oy = 2.4 * pAscent;
         break;
 
       case 'antennas_docking':
         // Inherits Ascent lift + telescopes higher above cabin roof
-        oy = 4.2 * pAscent + 3.4 * pAntenna;
+        oy = 2.4 * pAscent + 1.5 * pAntenna;
         break;
 
       case 'egress_ladder':
         // Translates forward (+Z) and lifts slightly
-        oy = 1.5 * pLadder;
-        oz = 3.6 * pLadder;
+        oy = 0.8 * pLadder;
+        oz = 1.8 * pLadder;
         break;
 
       case 'rcs_thrusters': {
         // Inherits Ascent lift + expands outward in 4 diagonal quadrants
         const dirX = mesh.userData.quadrantX || 1;
         const dirZ = mesh.userData.quadrantZ || 1;
-        ox = dirX * 3.2 * pRCS;
-        oy = 4.2 * pAscent + 0.4 * pRCS;
-        oz = dirZ * 3.2 * pRCS;
+        ox = dirX * 1.6 * pRCS;
+        oy = 2.4 * pAscent + 0.3 * pRCS;
+        oz = dirZ * 1.6 * pRCS;
         break;
       }
 
       case 'landing_gear':
         // Drops cleanly downward along -Y and expands outward radially
-        oy = -2.2 * pGear;
-        scaleX = 1 + 0.35 * pGear;
-        scaleZ = 1 + 0.35 * pGear;
+        oy = -1.1 * pGear;
+        scaleX = 1 + 0.18 * pGear;
+        scaleZ = 1 + 0.18 * pGear;
         break;
 
       case 'spherical_tanks': {
         const dirX = mesh.userData.quadrantX || 1;
         const dirZ = mesh.userData.quadrantZ || 1;
-        ox = dirX * 2.8 * pTanks;
-        oy = 0.5 * pTanks;
-        oz = dirZ * 2.8 * pTanks;
+        ox = dirX * 1.4 * pTanks;
+        oy = 0.3 * pTanks;
+        oz = dirZ * 1.4 * pTanks;
         break;
       }
 
       case 'structural_struts': {
         const dirX = mesh.userData.quadrantX || 1;
         const dirZ = mesh.userData.quadrantZ || 1;
-        ox = dirX * 2.0 * pTanks;
-        oy = -0.6 * pTanks;
-        oz = dirZ * 2.0 * pTanks;
+        ox = dirX * 1.0 * pTanks;
+        oy = -0.3 * pTanks;
+        oz = dirZ * 1.0 * pTanks;
         break;
       }
 

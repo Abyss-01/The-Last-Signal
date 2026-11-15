@@ -117,8 +117,8 @@ describe('Node Classification & Breakdown Kinematics', () => {
 
     // Full breakdown progress 1.0 -> all at target exploded positions
     applyBreakdownProgress(data.allMeshes, 1.0);
-    expect(meshA.position.y).toBeCloseTo(2.0 + 4.2);
-    expect(meshB.position.y).toBeCloseTo(0.5 - 2.2);
+    expect(meshA.position.y).toBeCloseTo(2.0 + 2.4);
+    expect(meshB.position.y).toBeCloseTo(0.5 - 1.1);
   });
 });
 
