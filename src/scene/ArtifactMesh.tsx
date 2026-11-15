@@ -351,151 +351,6 @@ function LRVModel({
   )
 }
 
-function PathfinderModel({
-  explodedRef,
-  components,
-  activeComponent,
-}: ModelProps) {
-  const c = (id: string) => comp(components, id)
-  return (
-    <group>
-      <ComponentGroup explodedRef={explodedRef} component={c('station-base')} active={activeComponent === 'station-base'}>
-        <mesh position={[0, 0.5, 0]} material={materials.white} castShadow receiveShadow>
-          <boxGeometry args={[1.4, 0.5, 1.4]} />
-        </mesh>
-        <mesh position={[0, 0.28, 0]} material={materials.dark} castShadow>
-          <cylinderGeometry args={[0.9, 1.0, 0.3, 3]} />
-        </mesh>
-      </ComponentGroup>
-      <ComponentGroup explodedRef={explodedRef} component={c('solar-panels')} active={activeComponent === 'solar-panels'}>
-        {[0, 1, 2].map((i) => (
-          <group key={i} rotation={[0, (i * Math.PI * 2) / 3, 0]}>
-            <mesh position={[1.05, 0.85, 0]} rotation={[0, 0, -0.12]} material={materials.solar} castShadow>
-              <boxGeometry args={[1.0, 0.03, 0.85]} />
-            </mesh>
-          </group>
-        ))}
-      </ComponentGroup>
-      <ComponentGroup explodedRef={explodedRef} component={c('rover-ramp')} active={activeComponent === 'rover-ramp'}>
-        <mesh position={[1.35, 0.18, 0.4]} rotation={[0, 0, -0.35]} material={materials.panel} castShadow>
-          <boxGeometry args={[1.1, 0.03, 0.5]} />
-        </mesh>
-      </ComponentGroup>
-      <ComponentGroup explodedRef={explodedRef} component={c('imager')} active={activeComponent === 'imager'}>
-        <mesh position={[-0.45, 1.05, -0.35]} material={materials.grey} castShadow>
-          <cylinderGeometry args={[0.03, 0.03, 0.5, 6]} />
-        </mesh>
-        <mesh position={[-0.45, 1.32, -0.35]} material={materials.dark} castShadow>
-          <boxGeometry args={[0.22, 0.14, 0.16]} />
-        </mesh>
-      </ComponentGroup>
-    </group>
-  )
-}
-
-function MarsRoverModel({
-  explodedRef,
-  components,
-  activeComponent,
-  mastHeight,
-  bodyColor,
-}: ModelProps & { mastHeight: number; bodyColor: string }) {
-  const c = (id: string) => comp(components, id)
-  const has = (id: string) => components.some((x) => x.id === id)
-  const wheels: [number, number, number][] = [
-    [-0.62, 0.3, 0.8],
-    [0.62, 0.3, 0.8],
-    [-0.62, 0.3, 0],
-    [0.62, 0.3, 0],
-    [-0.62, 0.3, -0.8],
-    [0.62, 0.3, -0.8],
-  ]
-  const bodyMaterial = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: bodyColor, metalness: 0.3, roughness: 0.6 }),
-    [bodyColor],
-  )
-  return (
-    <group>
-      <ComponentGroup explodedRef={explodedRef} component={c('rover-body')} active={activeComponent === 'rover-body'}>
-        <mesh position={[0, 0.62, 0]} material={bodyMaterial} castShadow receiveShadow>
-          <boxGeometry args={[1.0, 0.42, 1.5]} />
-        </mesh>
-      </ComponentGroup>
-      {has('solar-wings') && (
-        <ComponentGroup explodedRef={explodedRef} component={c('solar-wings')} active={activeComponent === 'solar-wings'}>
-          {[-1, 1].map((s) => (
-            <mesh
-              key={s}
-              position={[s * 0.95, 0.85, 0]}
-              rotation={[0, 0, s * 0.04]}
-              material={materials.solar}
-              castShadow
-            >
-              <boxGeometry args={[0.9, 0.03, 1.5]} />
-            </mesh>
-          ))}
-        </ComponentGroup>
-      )}
-      {has('rocker-bogie') && (
-        <ComponentGroup explodedRef={explodedRef} component={c('rocker-bogie')} active={activeComponent === 'rocker-bogie'}>
-          {wheels.map(([x, y, z], i) => (
-            <mesh
-              key={i}
-              position={[x, y, z]}
-              rotation={[0, 0, Math.PI / 2]}
-              material={materials.dark}
-              castShadow
-            >
-              <cylinderGeometry args={[0.3, 0.3, 0.2, 14]} />
-            </mesh>
-          ))}
-        </ComponentGroup>
-      )}
-      <ComponentGroup explodedRef={explodedRef} component={c('camera-mast')} active={activeComponent === 'camera-mast'}>
-        <mesh position={[0.15, 1.15, 0.4]} material={materials.grey} castShadow>
-          <cylinderGeometry args={[0.03, 0.03, mastHeight, 6]} />
-        </mesh>
-        <mesh position={[0.15, 1.15 + mastHeight / 2, 0.4]} material={materials.dark} castShadow>
-          <boxGeometry args={[0.3, 0.16, 0.12]} />
-        </mesh>
-      </ComponentGroup>
-      {has('robotic-arm') && (
-        <ComponentGroup explodedRef={explodedRef} component={c('robotic-arm')} active={activeComponent === 'robotic-arm'}>
-          <Strut
-            from={[-0.5, 0.5, 0.3]}
-            to={[-0.9, 0.42, 0.75]}
-            radius={0.025}
-            material={materials.grey}
-          />
-          <mesh position={[-0.95, 0.42, 0.8]} material={materials.dark} castShadow>
-            <boxGeometry args={[0.16, 0.1, 0.12]} />
-          </mesh>
-        </ComponentGroup>
-      )}
-      {has('apxs') && (
-        <ComponentGroup explodedRef={explodedRef} component={c('apxs')} active={activeComponent === 'apxs'}>
-          <mesh position={[-0.55, 0.72, 0.55]} material={materials.dark} castShadow>
-            <boxGeometry args={[0.1, 0.08, 0.2]} />
-          </mesh>
-        </ComponentGroup>
-      )}
-      {/* Wheels ride with the body when not an exploded component (context) */}
-      {!has('rocker-bogie') &&
-        wheels.map(([x, y, z], i) => (
-          <mesh
-            key={i}
-            position={[x, y, z]}
-            rotation={[0, 0, Math.PI / 2]}
-            material={materials.dark}
-            castShadow
-          >
-            <cylinderGeometry args={[0.3, 0.3, 0.2, 14]} />
-          </mesh>
-        ))}
-    </group>
-  )
-}
-
 interface ModelProps {
   explodedRef: React.MutableRefObject<number>
   components: ExplodedComponent[]
@@ -605,18 +460,15 @@ function ProceduralArtifact({
   switch (artifact.id) {
     case 'eagle-descent-stage':
       return <EagleDescentStageModel {...modelProps} />
+    case 'laser-ranging-retroreflector':
     case 'apollo-11-lrrr':
       return <LRRRModel {...modelProps} />
+    case 'passive-seismic-experiment':
     case 'apollo-11-pse':
       return <PSEModel {...modelProps} />
     case 'apollo-15-lrv':
+    case 'lunar-roving-vehicle':
       return <LRVModel {...modelProps} />
-    case 'mars-pathfinder-lander':
-      return <PathfinderModel {...modelProps} />
-    case 'sojourner-rover':
-      return <MarsRoverModel {...modelProps} mastHeight={0.28} bodyColor="#c8c2b2" />
-    case 'opportunity-rover':
-      return <MarsRoverModel {...modelProps} mastHeight={0.55} bodyColor="#b4ab97" />
     default:
       return null
   }

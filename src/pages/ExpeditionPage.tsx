@@ -66,12 +66,13 @@ function CanvasLoading() {
 }
 
 const ENV_BY_ACT: Record<string, SoundEnvironment> = {
-  'earth-launch': 'earth',
-  cislunar: 'cislunar',
-  'moon-apollo-11': 'moon',
-  'moon-apollo-15': 'moon',
-  'time-skip': 'transition',
-  mars: 'mars',
+  'broadsheet-pad': 'earth',
+  'saturn-v-launch': 'earth',
+  'space-staging': 'cislunar',
+  'cislunar-wormhole': 'transition',
+  'lunar-module-breakdown': 'moon',
+  'lunar-archaeology': 'moon',
+  'earthrise-loop': 'cislunar',
 }
 
 /**

@@ -198,7 +198,7 @@ export function InspectionOverlay({
             <Note style={{ color: '#8a8272' }}>Reference: {artifact.coordinate.referenceFrame}</Note>
           </>
         ) : (
-          <Note>{artifact.coordinateUncertainty}</Note>
+          <Note>Position unverified or reconstructed</Note>
         )}
       </section>
 

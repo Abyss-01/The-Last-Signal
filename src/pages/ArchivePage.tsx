@@ -19,7 +19,7 @@ export function ArchivePage() {
   const [dossierId, setDossierId] = useState<string | null>(null)
 
   const filtered = useMemo(
-    () => ARTIFACTS.filter((a) => (filter === 'all' ? true : a.body === filter)),
+    () => ARTIFACTS.filter((a) => (filter === 'all' ? true : a.missionId === filter)),
     [filter],
   )
   const dossier = dossierId ? ARTIFACTS.find((a) => a.id === dossierId) ?? null : null
@@ -246,15 +246,15 @@ export function ArchivePage() {
               The Catalog of Left-Behind Machines
             </div>
             <h2 className="ed-serif" style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 700, margin: '8px 0 0' }}>
-              Seven Objects, Documented
+              Four Lunar Objects, Documented
             </h2>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             {(
               [
                 ['all', `All (${ARTIFACTS.length})`],
-                ['moon', `Moon (${ARTIFACTS.filter((a) => a.body === 'moon').length})`],
-                ['mars', `Mars (${ARTIFACTS.filter((a) => a.body === 'mars').length})`],
+                ['apollo-11', `Apollo 11 (${ARTIFACTS.filter((a) => a.missionId === 'apollo-11').length})`],
+                ['apollo-15', `Apollo 15 (${ARTIFACTS.filter((a) => a.missionId === 'apollo-15').length})`],
               ] as [ArtifactFilter, string][]
             ).map(([value, label]) => (
               <button
@@ -498,7 +498,7 @@ function DossierDrawer({
               </p>
             </>
           ) : (
-            <p className="ed-body" style={{ fontSize: '0.85rem' }}>{artifact.coordinateUncertainty}</p>
+            <p className="ed-body" style={{ fontSize: '0.85rem' }}>Position unverified</p>
           )}
 
           <hr className="ed-rule-thin" style={{ margin: '14px 0' }} />

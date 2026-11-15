@@ -1,14 +1,13 @@
 /**
  * Abandoned, Not Forgotten — data layer types (Quark Babies).
  *
- * Everything here is governed by `context.md`: four missions, seven
- * featured objects, verified facts separated from interpretive narrative,
+ * Dedicated Lunar scope: Apollo missions, verified lunar artifacts,
  * coordinate uncertainty preserved, and launch hardware discarded in
  * flight never presented as a planetary-surface artifact.
  */
 
 /** Celestial body a mission/artifact belongs to (for filters and zones). */
-export type CelestialBody = 'moon' | 'mars'
+export type CelestialBody = 'moon'
 
 /**
  * Object status per context.md §7. Not every object is "abandoned" in the
@@ -16,7 +15,6 @@ export type CelestialBody = 'moon' | 'mars'
  */
 export type ObjectStatusCategory =
   | 'left-on-lunar-surface'
-  | 'left-on-martian-surface'
   | 'discarded-in-flight'
   | 'returned-to-earth'
   | 'status-uncertain'
@@ -100,53 +98,42 @@ export interface KeyDate {
   date: string
 }
 
-/** One of the four featured missions. */
+/** A mission in the expedition registry. */
 export interface MissionRecord {
-  id: string
+  id: 'apollo-11' | 'apollo-15'
   name: string
   era: string
   body: CelestialBody
-  /** Landing-site designation. */
   site: string
-  /** Verified landing-site coordinates (the site datum). */
   siteCoordinate: VerifiedCoordinate
   keyDates: KeyDate[]
-  /** One-paragraph mission summary. */
   summary: string
   sources: PrimarySourceRecord[]
 }
 
-/** One of the seven featured objects. */
+/** One of the featured objects. */
 export interface FeaturedArtifact {
-  /** Stable id used in routes, models and scene groups. */
   id: string
-  /** Catalog number, OBJ-01 … OBJ-07. */
+  /** Catalog badge, e.g. "OBJ-01". */
   catalog: string
-  missionId: string
+  missionId: 'apollo-11' | 'apollo-15'
   name: string
-  /** Short archival designation, e.g. NSSDCA/COSPAR id or MER-B. */
-  designation?: string
+  /** Official designation (e.g. NSSDCA ID). */
+  designation: string
   body: CelestialBody
   status: StatusMeta
-  /** Verified coordinates, or an explicit uncertainty record. */
-  coordinate?: VerifiedCoordinate
-  /** Required when `coordinate` is omitted — the honest reason. */
-  coordinateUncertainty?: string
+  coordinate: VerifiedCoordinate
   narrative: ObjectNarrative
   provenance: AssetProvenance
-  /** Exploded-view components (illustrative reconstruction). */
+  /** Components exposed by the exploded-view animation. */
   components: ExplodedComponent[]
-  /**
-   * World-space anchor (metres) of the object in the expedition scene.
-   * These are reconstruction coordinates for the experience — they are
-   * never geographic coordinates.
-   */
+  /** World position (metres) in the Three.js expedition scene. */
   sceneAnchor: [number, number, number]
-  /** Local archival image plate, if placed in public/assets. */
+  /** Local image URL under public/assets/artifacts. */
   localImage?: string
-  /** NASA image identifier for the plate. */
+  /** NASA image ID where available, e.g. "AS11-40-5927". */
   nasaImageId?: string
-  /** NASA image source page for the plate. */
+  /** NASA public page where the image was verified. */
   nasaImageSource?: string
   /** Archival caption / credit for the plate. */
   imageCredit?: string
@@ -162,9 +149,9 @@ export interface LaunchStageDistinction {
   status: StatusMeta
 }
 
-export type ArtifactFilter = 'all' | 'moon' | 'mars'
+export type ArtifactFilter = 'all' | 'apollo-11' | 'apollo-15'
 
-/** The six choreographed acts of the expedition. */
+/** The choreographed acts of the expedition. */
 export interface TimelineAct {
   id: string
   title: string

@@ -1,0 +1,273 @@
+# FINAL SCOPE REDUCTION & 3D EXPERIENCE REBUILD — THE LAST SIGNAL
+
+We are short on time. Work directly in the existing repository and deliver a working, polished, tested implementation. Do not spend time producing another lengthy plan or asking for confirmation. Inspect the current code, understand the existing architecture, and execute the changes.
+
+## 1. Reduce the project scope: REMOVE MARS
+
+The final experience is now exclusively about the Moon.
+
+Completely remove the Mars chapter from the main website:
+- Remove the Mars journey, Mars surface scene, Mars mission transitions, Mars camera paths, Mars terrain, Mars-specific markers, and Mars-specific HUD/navigation elements.
+- Remove Mars Pathfinder, Sojourner, and Opportunity from the interactive artifact catalogue and expedition.
+- Remove references to the Mars journey in the landing page, navigation, chapter progression, captions, timeline, and project descriptions where they imply Mars is still part of the experience.
+- Remove unused Mars models, textures, animations, and related assets after confirming nothing else depends on them.
+- Remove obsolete code, imports, dependencies, and components made unnecessary by this scope reduction.
+
+Do not accidentally remove shared components or useful research.
+
+The final narrative should be a focused lunar expedition covering:
+1. Earth and Saturn V launch.
+2. Journey to the Moon.
+3. Apollo 11 — Eagle Lunar Module descent stage.
+4. Apollo 11 — Lunar Laser Ranging Retroreflector.
+5. Apollo 11 — Passive Seismic Experiment.
+6. Apollo 15 — Lunar Roving Vehicle.
+7. Closing chapter: the legacy of human exploration and the objects left on the Moon.
+
+Maintain historical accuracy. Apollo 11 and Apollo 15 are separate missions. Do not imply they happened during one continuous mission.
+
+## 2. Replace the main website's launch sequence with the standalone Saturn V launch
+
+There is a better Saturn V launch implementation in:
+
+`apollo11-saturn-v-launch/`
+
+This is currently a standalone Three.js experience. The main React website has an inferior procedural Saturn V launch implementation.
+
+Your task:
+- Thoroughly inspect the standalone implementation.
+- Identify its actual Saturn V GLB model, camera choreography, launch sequence, stage separation, translunar injection, lighting, animation timing, and controls.
+- Integrate the best parts of that implementation into the existing React + TypeScript + React Three Fiber website.
+- Replace the current procedural Saturn V implementation in the main expedition.
+- Preserve the standalone version until the integrated version has been verified.
+- Do not simply embed the standalone website in an iframe.
+- Do not create a second competing WebGL canvas.
+- Do not maintain two separate launch implementations after successful integration.
+
+The integrated launch must feel like the standalone experience, not a simplified approximation.
+
+Important:
+- Preserve the actual model geometry and materials.
+- Preserve the launch sequence's important visual events.
+- Reimplement stage separation appropriately in the existing architecture.
+- If the model does not contain actual animated stage separation, use the standalone implementation's established approach, but ensure the result looks coherent.
+- Keep camera motion, lighting, exhaust, and movement synchronized.
+- Ensure scroll interaction and reverse scrolling work correctly.
+- Do not invent model animations that do not exist.
+
+The main website must own the final experience. The standalone directory should only be removed or archived after the integrated implementation works.
+
+## 3. Establish one consistent artifact presentation system
+
+The Eagle Lunar Module burst/exploded-view presentation is the visual and interaction reference for ALL lunar artifacts.
+
+Inspect the existing Eagle Lunar Module burst implementation carefully. Understand its:
+- Camera positioning and movement.
+- Object presentation.
+- Component separation and arrangement.
+- Animation timing and easing.
+- Lighting and material treatment.
+- Labels and information presentation.
+- Scroll or interaction behaviour.
+- Entry and exit transitions.
+
+Then establish a reusable artifact presentation system.
+
+Every artifact should follow the same overall presentation format:
+
+1. The camera approaches the artifact.
+2. The surrounding environment becomes visually subdued.
+3. The artifact becomes the clear focal point.
+4. Its components are presented through a controlled burst/exploded-view animation where accurate component information and geometry are available.
+5. Components are labelled clearly and consistently.
+6. Selecting a component reveals its engineering explanation.
+7. The artifact's story, mission, engineering, fate, and legacy are accessible through a consistent information layout.
+8. The user can return to the main expedition without an abrupt camera jump.
+
+Apply this visual language to:
+- Eagle Lunar Module descent stage.
+- Lunar Laser Ranging Retroreflector.
+- Passive Seismic Experiment.
+- Apollo 15 Lunar Roving Vehicle.
+
+### Accuracy requirements
+
+Do not fabricate exploded views.
+
+For every artifact:
+- Use genuine component geometry where available.
+- Use reliable NASA documentation and model provenance.
+- Do not invent internal components, dimensions, mechanisms, or engineering details.
+- If a complete exploded view is not supported by available geometry, create a restrained, accurate presentation using only verified separable components.
+- If the model is a simplified reconstruction, label it honestly.
+- Never present a generic primitive model as a detailed NASA reconstruction.
+
+The animation format should remain consistent even if the complexity of the exploded view differs between artifacts.
+
+The result should feel like one designed interactive experience, not four unrelated 3D demonstrations.
+
+## 4. Clean up 3D assets, animations, and transitions
+
+Audit the entire active 3D experience.
+
+Remove:
+- Duplicate Saturn V implementations.
+- Unused or redundant GLB/GLTF files.
+- Unused textures and materials.
+- Duplicate models of the same object.
+- Abandoned animation implementations.
+- Dead scene components.
+- Unused camera paths.
+- Obsolete transitions.
+- Redundant animation libraries or logic where safe.
+- Procedural placeholder geometry that is superseded by verified models.
+
+Do not delete assets merely because their filenames look unused. Trace references first.
+
+Create a clear asset mapping for each remaining model:
+- Artifact or scene.
+- Actual file path.
+- Source/provenance.
+- Whether it is a real source model or reconstruction.
+- Whether it is currently used.
+- Any optimization performed.
+
+### Animation and transition consistency
+
+Unify the experience around a small set of reusable animation primitives:
+- Camera approach.
+- Camera focus.
+- Artifact reveal.
+- Exploded-view/burst.
+- Component selection.
+- Information panel reveal.
+- Artifact exit.
+- Chapter transition.
+
+Use consistent easing, durations, camera behaviour, and visual treatment.
+
+Avoid:
+- Abrupt camera jumps.
+- Conflicting GSAP and React Three Fiber animation loops.
+- Multiple ScrollTrigger instances controlling the same scene.
+- Unnecessary re-rendering.
+- Sudden changes in object scale.
+- Artifacts appearing before their chapter.
+- Animation states becoming corrupted when scrolling backwards.
+- Animations continuing after an inspection has closed.
+
+There should be one coherent source of truth for expedition scroll progress and scene choreography.
+
+## 5. Preserve the visual identity
+
+Do not redesign the entire website unnecessarily.
+
+Preserve:
+- The newspaper-style archive.
+- The immersive expedition concept.
+- Existing useful NASA research and artifact information.
+- The current React/TypeScript/Vite architecture.
+- Existing useful accessibility and navigation features.
+
+However, improve consistency between the archive and expedition where necessary.
+
+The expedition should feel cinematic, spatial, and carefully choreographed. The artifact inspections should feel like the Eagle burst presentation. The archive should remain an editorial publication.
+
+## 6. Performance and stability
+
+The final application must run smoothly on ordinary modern laptops, not just high-end workstations.
+
+Prioritize:
+- One coordinated WebGL canvas.
+- GLB/GLTF optimization.
+- Compressed textures where appropriate.
+- Efficient material reuse.
+- Lazy loading of chapter-specific assets.
+- Disposal of unused geometries, materials, and textures.
+- Reasonable shadow and lighting costs.
+- Avoiding duplicate render loops.
+- Avoiding unnecessary React state updates inside animation loops.
+- Appropriate model detail and LOD where useful.
+
+Do not sacrifice the actual 3D presentation by replacing models with CSS effects or primitive placeholders just to improve performance.
+
+## 7. Testing and verification
+
+Do not finish after static code edits.
+
+Run:
+- TypeScript checks.
+- Production build.
+- Linting, if configured.
+- Existing tests.
+- Browser-based Playwright tests where available.
+
+Add or update tests for:
+- No Mars chapter or Mars artifact references in the active experience.
+- Main website loads the integrated Saturn V model.
+- Launch sequence progresses correctly.
+- Stage separation and subsequent sequence work.
+- All four lunar artifacts can be reached.
+- Each artifact can be inspected and exited.
+- Exploded-view animations behave correctly.
+- Reverse scrolling does not break the scene.
+- No major console errors.
+- No missing model or texture requests.
+- WebGL fallback still provides usable navigation.
+
+Test the actual browser experience, not just whether the project compiles.
+
+## 8. Execution priorities
+
+Work in this order:
+
+**P0 — Scope and launch**
+1. Remove Mars from the active experience.
+2. Integrate the standalone Saturn V launch into the main website.
+3. Verify the complete Earth-to-Moon journey.
+
+**P1 — Artifact consistency**
+4. Inspect the Eagle burst implementation.
+5. Extract reusable presentation and animation logic.
+6. Apply it to the remaining lunar artifacts.
+7. Ensure all artifact inspections have consistent entry, presentation, and exit behaviour.
+
+**P2 — Cleanup and performance**
+8. Remove genuinely unused models, animations, and code.
+9. Optimize remaining assets.
+10. Fix transition and scroll synchronization issues.
+
+**P3 — Verification**
+11. Run the production build.
+12. Run browser tests.
+13. Fix regressions.
+14. Update the README to reflect the actual final experience.
+
+## 9. Important working rules
+
+- Do not stop after writing a plan. Implement the changes.
+- Do not ask me to approve each stage.
+- Do not replace working features with placeholders.
+- Do not rewrite the application from scratch.
+- Do not migrate frameworks.
+- Do not remove valuable NASA research.
+- Do not introduce additional missions or features.
+- Do not claim something works unless you have tested it.
+- Do not hide errors or suppress warnings just to obtain a successful build.
+- Keep changes focused on the final competition submission.
+
+Before modifying anything, inspect the current repository state and preserve uncommitted user work. Do not reset, force-push, or overwrite unrelated changes.
+
+## 10. Final report
+
+When finished, provide:
+1. What was removed.
+2. How the standalone Saturn V sequence was integrated.
+3. How the Eagle burst presentation was generalized.
+4. Which artifacts have genuine exploded-view geometry versus restrained reconstructions.
+5. Which 3D assets were removed and why.
+6. Performance improvements.
+7. Build and test results.
+8. Known limitations or unfinished work.
+
+The goal is a complete, cohesive lunar exploration experience with the standalone Saturn V launch and a consistent Eagle-style artifact presentation. Prioritize a working, polished submission over unnecessary complexity.

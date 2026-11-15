@@ -13,7 +13,7 @@
  * Fully usable while muted; the context starts only after a user gesture.
  */
 
-export type SoundEnvironment = 'earth' | 'cislunar' | 'moon' | 'transition' | 'mars'
+export type SoundEnvironment = 'earth' | 'cislunar' | 'moon' | 'transition'
 
 interface EnvironmentProfile {
   droneGain: number
@@ -66,16 +66,6 @@ const PROFILES: Record<SoundEnvironment, EnvironmentProfile> = {
     oscAGain: 0.03,
     oscBGain: 0.02,
     lfoDepth: 30,
-  },
-  mars: {
-    droneGain: 0.15,
-    filterFreq: 320,
-    filterQ: 1.1,
-    oscAFreq: 48,
-    oscBFreq: 96,
-    oscAGain: 0.035,
-    oscBGain: 0.015,
-    lfoDepth: 140,
   },
 }
 

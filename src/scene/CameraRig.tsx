@@ -5,11 +5,7 @@ import { OrbitControls } from '@react-three/drei'
 import gsap from 'gsap'
 
 import type { FeaturedArtifact } from '@/data/types'
-import {
-  cameraCurve,
-  curveParameter,
-  lookCurve,
-} from './ScrollChoreography'
+import { cameraPose } from './ScrollChoreography'
 
 /**
  * Camera controller: during scroll mode it interpolates along the
@@ -102,16 +98,8 @@ export function CameraRig({ scrollProgressRef, focusArtifact }: CameraRigProps) 
   // Scroll mode: spline interpolation from the mutable progress ref.
   useFrame((_, delta) => {
     if (mode.current !== 'scroll') return
-    const progress = scrollProgressRef.current
-    const param = curveParameter(progress)
+    const { position: targetPos, lookAt: targetLook } = cameraPose(scrollProgressRef.current)
     const damp = 1 - Math.exp(-delta * 7)
-
-    const targetPos = cameraCurve.getPointAt(
-      Math.min(0.9999, Math.max(0.0001, param)),
-    )
-    const targetLook = lookCurve.getPointAt(
-      Math.min(0.9999, Math.max(0.0001, param)),
-    )
 
     camera.position.lerp(targetPos, damp)
     lookTarget.current.lerp(targetLook, damp)

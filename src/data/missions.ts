@@ -1,10 +1,8 @@
 /**
- * The four featured missions (context.md §4 — exact scope, no additions).
+ * The featured lunar missions (pure Moon scope per project brief).
  *
  * Every date and coordinate below is traceable to the NASA source listed
- * on the record. Apollo 15's landing coordinates are the published
- * Hadley–Apennine site values; Pathfinder and Opportunity use the
- * coordinates given in the project brief and flagged to their precision.
+ * on the record. Apollo 11 Tranquility Base and Apollo 15 Hadley–Apennine.
  */
 
 import { NASA_SOURCES } from './sources'
@@ -17,26 +15,19 @@ export const LEFT_ON_LUNAR_SURFACE: StatusMeta = {
   summary: 'Still at its landing site today.',
 }
 
-export const LEFT_ON_MARTIAN_SURFACE: StatusMeta = {
-  category: 'left-on-martian-surface',
-  label: 'Left on the Martian surface',
-  scienceContinues: false,
-  summary: 'Still at its landing/traverse site today.',
-}
-
 export const DISCARDED_IN_FLIGHT: StatusMeta = {
   category: 'discarded-in-flight',
   label: 'Discarded during launch/flight',
   scienceContinues: false,
   summary:
-    'Launch hardware, not a surface artifact — never touched the Moon or Mars.',
+    'Launch hardware, not a surface artifact — never touched the Moon.',
 }
 
 export const STILL_OPERATIONAL_STATUS: StatusMeta = {
   category: 'left-on-lunar-surface',
   label: 'Left on the lunar surface · still used by science',
   scienceContinues: true,
-  summary: 'Passive instrument still returning data from the surface.',
+  summary: 'Passive instrument still returning data from the surface today.',
 }
 
 export const APOLLO11_MISSION: MissionRecord = {
@@ -94,67 +85,13 @@ export const APOLLO15_MISSION: MissionRecord = {
   sources: [NASA_SOURCES.apollo15LunarPage],
 }
 
-export const PATHFINDER_MISSION: MissionRecord = {
-  id: 'mars-pathfinder',
-  name: 'Mars Pathfinder',
-  era: '1996–1997',
-  body: 'mars',
-  site: 'Ares Vallis, Chryse Planitia region',
-  siteCoordinate: {
-    latitude: 19.13,
-    longitude: -33.22,
-    dms: '19°07′48″N, 33°13′12″W',
-    referenceFrame: 'Areocentric coordinates of the Ares Vallis landing ellipse (published Pathfinder site values)',
-    precision: 'site',
-    note: 'Documented Pathfinder landing site. Sojourner is referenced to the lander, not independently surveyed here.',
-  },
-  keyDates: [
-    { label: 'Launch', date: '4 December 1996, 06:58 UT (Delta II)' },
-    { label: 'Airbag landing', date: '4 July 1997, 16:56:55 UT (Earth-received)' },
-    { label: 'Sojourner egress', date: '6 July 1997' },
-    { label: 'Final contact', date: '27 September 1997, after 83 sols' },
-  ],
-  summary:
-    'A low-cost lander that arrived at Ares Vallis inside airbags on 4 July 1997, opened its petals, deployed ramps for Sojourner — the first rover to operate on Mars — and was renamed the Carl Sagan Memorial Station.',
-  sources: [NASA_SOURCES.marsPathfinder],
-}
-
-export const OPPORTUNITY_MISSION: MissionRecord = {
-  id: 'mer-opportunity',
-  name: 'Mars Exploration Rover: Opportunity (MER-B)',
-  era: '2003–2019',
-  body: 'mars',
-  site: 'Meridiani Planum — Perseverance Valley, Endeavour Crater rim',
-  siteCoordinate: {
-    latitude: -1.946,
-    longitude: 354.473,
-    dms: '1°56′46″S, 354°28′24″E',
-    referenceFrame: 'Areocentric coordinates of the Opportunity landing/traverse record (published MER-B site values)',
-    precision: 'site',
-    note: 'Documented Opportunity landing record. The rover drove 45.16 km; its final position in Perseverance Valley is referenced to the mission record, not an independent survey.',
-  },
-  keyDates: [
-    { label: 'Launch', date: '7 July 2003, 11:18 p.m. EDT (Delta II)' },
-    { label: 'Landing', date: '25 January 2004, 05:05 UT (Earth-received)' },
-    { label: 'Prime mission complete', date: '90 sols after landing' },
-    { label: 'Last contact', date: '10 June 2018, during a global dust storm' },
-    { label: 'Mission concluded', date: '13 February 2019' },
-  ],
-  summary:
-    'Built for a 90-sol prime mission, Opportunity drove 45.16 km across Meridiani Planum over 5,352 sols — nearly fifteen years — until a global dust storm silenced it in June 2018.',
-  sources: [NASA_SOURCES.opportunityRover],
-}
-
 export const MISSIONS: MissionRecord[] = [
   APOLLO11_MISSION,
   APOLLO15_MISSION,
-  PATHFINDER_MISSION,
-  OPPORTUNITY_MISSION,
 ]
 
 /**
- * Saturn V stages are launch hardware discarded in flight — NOT lunar or
- * Martian surface artifacts (context.md working rule 5).
+ * Saturn V stages are launch hardware discarded in flight — NOT lunar surface artifacts.
  */
 export const SATURN_V_STAGE_DISTINCTIONS: LaunchStageDistinction[] = [
   {

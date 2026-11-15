@@ -2,21 +2,25 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 
-import { QUALITY, supportsWebGL } from './QualityTier'
+import { supportsWebGL } from './QualityTier'
 import { skyState } from './ScrollChoreography'
 import { CameraRig, OrbitGate } from './CameraRig'
-import { EarthLaunchAct } from './acts/EarthLaunchAct'
+import { SaturnVLaunch } from './SaturnVLaunch'
+import { WormholeTransition } from './WormholeTransition'
+import { LunarModuleBreakdown } from './LunarModuleBreakdown'
 import { LunarSurfaceAct } from './acts/LunarSurfaceAct'
-import { TransitionAct } from './acts/TransitionAct'
-import { MarsSurfaceAct } from './acts/MarsSurfaceAct'
 
 import type { FeaturedArtifact } from '@/data/types'
 
 /**
- * The single persistent <Canvas> for the whole /expedition route. It is
- * mounted once and never unmounted per act; scroll progress arrives
- * exclusively through the mutable ref. Sky, fog, starfield and the sun
- * light are animated per frame from the same progress value.
+ * The single persistent <Canvas> for the entire expedition experience.
+ * Incorporates:
+ *   1. Saturn V Launch stack on Pad 39A with F-1 plumes, billowing smoke
+ *      screen-cover, and S-IC/S-II/S-IVB stage separation.
+ *   2. Relativistic Wormhole / Crater Warp Tunnel approaching the Moon.
+ *   3. Apollo Lunar Module Eagle with staged mechanical exploded-view breakdown.
+ *   4. Lunar Surface Archaeology (Retroreflector, Seismic Experiment, LRV Rover).
+ *   5. Earthrise and orbital return loop.
  */
 
 export interface SceneCanvasProps {
@@ -25,6 +29,46 @@ export interface SceneCanvasProps {
   activeComponent: string | null
   focusArtifact: FeaturedArtifact | null
   onSelectArtifact: (artifact: FeaturedArtifact) => void
+}
+
+function EarthriseModel({ progressRef }: { progressRef: React.MutableRefObject<number> }) {
+  const earthRef = useRef<THREE.Group>(null)
+
+  useFrame(() => {
+    const p = progressRef.current
+    if (earthRef.current) {
+      // Visible from orbit & during loop return
+      earthRef.current.visible = p > 0.82
+      earthRef.current.rotation.y += 0.0012
+    }
+  })
+
+  return (
+    <group ref={earthRef} position={[0, 480, -450]}>
+      {/* Earth Sphere */}
+      <mesh>
+        <sphereGeometry args={[110, 48, 48]} />
+        <meshStandardMaterial
+          color="#1e549f"
+          roughness={0.7}
+          metalness={0.1}
+          emissive="#0b1b36"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
+      {/* Atmosphere Glow Ring */}
+      <mesh scale={[1.04, 1.04, 1.04]}>
+        <sphereGeometry args={[110, 32, 32]} />
+        <meshBasicMaterial
+          color="#65c2ff"
+          transparent
+          opacity={0.32}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
+  )
 }
 
 export function SceneCanvas({
@@ -66,13 +110,13 @@ export function SceneCanvas({
           </p>
           <h2
             style={{
-              fontFamily: 'var(--font-headline)',
+              fontFamily: 'var(--font-serif)',
               fontSize: 'clamp(1.6rem, 4vw, 3rem)',
               margin: '0 0 10px',
               lineHeight: 1.1,
             }}
           >
-            The view is paused
+            The WebGL View is Paused
           </h2>
           <p
             style={{
@@ -83,41 +127,9 @@ export function SceneCanvas({
               color: '#ece9e2',
             }}
           >
-            Your browser could not allocate a WebGL rendering context, so the
-            scene cannot be drawn here. The preserved 2-D archive view below keeps
-            the seven-record journal readable.
+            Your browser could not allocate a WebGL rendering context. The preserved
+            broadsheet archive above keeps the lunar records readable.
           </p>
-          <ul
-            style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.95rem',
-              lineHeight: 1.7,
-              color: '#ece9e2',
-              margin: 0,
-              paddingLeft: 20,
-            }}
-          >
-            <li>Objects, their verified coordinates and status — documented artefacts of exploration, not models.</li>
-            <li>The mission chronology, the Saturn V stage ledger, and the readings these machines left.</li>
-            <li>Select a marker in the preserved index to open the inspection dossier for any object.</li>
-          </ul>
-          <button
-            type="button"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.66rem',
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              border: '1px solid var(--ochre)',
-              color: '#9c4221',
-              background: 'rgba(12,11,10,0.55)',
-              padding: '0.7rem 1.3rem',
-              cursor: 'pointer',
-            }}
-          >
-            Scroll to the archive
-          </button>
         </div>
       </div>
     )
@@ -126,29 +138,36 @@ export function SceneCanvas({
   return (
     <Canvas
       shadows
-      dpr={QUALITY.dpr}
+      dpr={[1, 1.5]}
       gl={{
-        antialias: QUALITY.antialias,
+        antialias: true,
         powerPreference: 'high-performance',
       }}
-      camera={{ fov: 55, near: 0.1, far: 9000, position: [0, 5, 62] }}
+      camera={{ fov: 48, near: 0.1, far: 9000, position: [0, 14, 62] }}
       style={{ position: 'fixed', inset: 0, zIndex: 0 }}
     >
       <SceneEnvironment progressRef={scrollProgressRef} />
-      <EarthLaunchAct progressRef={scrollProgressRef} />
+
+      {/* Act 1 & 2: Saturn V Launch Stack on Pad 39A */}
+      <SaturnVLaunch progressRef={scrollProgressRef} />
+
+      {/* Act 4: Wormhole Warp Tunnel to the Moon */}
+      <WormholeTransition progressRef={scrollProgressRef} range={[0.44, 0.58]} />
+
+      {/* Act 5: Staged Mechanical Exploded-View of Apollo Lunar Module */}
+      <LunarModuleBreakdown progressRef={scrollProgressRef} range={[0.56, 0.78]} />
+
+      {/* Act 6: Lunar Surface Archaeology (Retroreflector, Seismic Experiment, Rover) */}
       <LunarSurfaceAct
         progressRef={scrollProgressRef}
         explodedRef={explodedRef}
         activeComponent={activeComponent}
         onSelect={onSelectArtifact}
       />
-      <TransitionAct progressRef={scrollProgressRef} />
-      <MarsSurfaceAct
-        progressRef={scrollProgressRef}
-        explodedRef={explodedRef}
-        activeComponent={activeComponent}
-        onSelect={onSelectArtifact}
-      />
+
+      {/* Act 7: High Orbit Earthrise for Loop */}
+      <EarthriseModel progressRef={scrollProgressRef} />
+
       <CameraRig scrollProgressRef={scrollProgressRef} focusArtifact={focusArtifact} />
       <OrbitGate inspecting={focusArtifact !== null} />
     </Canvas>
@@ -156,34 +175,8 @@ export function SceneCanvas({
 }
 
 /* ------------------------------------------------------------------ */
-/* Environment — fog, background, sun, stars                           */
+/* Environment — fog, background, sun, starfield                      */
 /* ------------------------------------------------------------------ */
-
-/** Zone focus points the sun tracks, keyed by progress windows. */
-const ZONE_FOCUS: { p: number; focus: [number, number, number] }[] = [
-  { p: 0, focus: [0, 60, 0] },
-  { p: 0.16, focus: [0, 60, 0] },
-  { p: 0.3, focus: [0, 30, -1150] },
-  { p: 0.52, focus: [0, 0, -1200] },
-  { p: 0.66, focus: [342, 0, -1400] },
-  { p: 0.78, focus: [500, 0, -1900] },
-  { p: 1.0, focus: [660, 0, -2060] },
-]
-
-function zoneFocus(progress: number, out: THREE.Vector3): THREE.Vector3 {
-  let i = 0
-  while (i < ZONE_FOCUS.length - 2 && progress > ZONE_FOCUS[i + 1].p) i++
-  const a = ZONE_FOCUS[i]
-  const b = ZONE_FOCUS[i + 1]
-  const t = THREE.MathUtils.clamp(
-    (progress - a.p) / Math.max(1e-6, b.p - a.p),
-    0,
-    1,
-  )
-  const av = new THREE.Vector3(...a.focus)
-  const bv = new THREE.Vector3(...b.focus)
-  return out.copy(av.lerp(bv, t))
-}
 
 function SceneEnvironment({
   progressRef,
@@ -193,10 +186,8 @@ function SceneEnvironment({
   const scene = useThree((state) => state.scene)
   const sunRef = useRef<THREE.DirectionalLight>(null)
   const hemiRef = useRef<THREE.HemisphereLight>(null)
-  const starsRef = useRef<THREE.Points>(null!)
-  const focusVec = useMemo(() => new THREE.Vector3(), [])
 
-  const fog = useMemo(() => new THREE.FogExp2('#050507', 0), [])
+  const fog = useMemo(() => new THREE.FogExp2('#050507', 0.0004), [])
   const background = useMemo(() => new THREE.Color('#050507'), [])
 
   useEffect(() => {
@@ -208,6 +199,32 @@ function SceneEnvironment({
     }
   }, [scene, fog, background])
 
+  // Cosmic Starfield
+  const starsMesh = useMemo(() => {
+    const count = 1800
+    const geo = new THREE.BufferGeometry()
+    const pos = new Float32Array(count * 3)
+    for (let i = 0; i < count; i++) {
+      const u = Math.random()
+      const v = Math.random()
+      const theta = u * 2.0 * Math.PI
+      const phi = Math.acos(2.0 * v - 1.0)
+      const r = 2400 + Math.random() * 800
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta)
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+      pos[i * 3 + 2] = r * Math.cos(phi)
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+    const mat = new THREE.PointsMaterial({
+      color: '#e5e9f5',
+      size: 2.2,
+      sizeAttenuation: false,
+      transparent: true,
+      opacity: 0.85,
+    })
+    return new THREE.Points(geo, mat)
+  }, [])
+
   useFrame(() => {
     const s = skyState(progressRef.current)
     fog.color.copy(s.fogColor)
@@ -216,90 +233,33 @@ function SceneEnvironment({
 
     const sun = sunRef.current
     if (sun) {
-      sun.color.copy(s.lightColor)
-      sun.intensity = s.lightIntensity
-      zoneFocus(progressRef.current, focusVec)
-      sun.position.set(focusVec.x + 260, focusVec.y + 340, focusVec.z + 180)
-      sun.target.position.copy(focusVec)
-      sun.target.updateMatrixWorld()
+      sun.color.copy(s.sunColor)
+      sun.intensity = s.sunIntensity
     }
     const hemi = hemiRef.current
     if (hemi) {
-      hemi.intensity = s.ambientIntensity
-      hemi.color.copy(s.fogColor)
-    }
-    const stars = starsRef.current
-    if (stars) {
-      ;(stars.material as THREE.PointsMaterial).opacity = s.starOpacity
-      stars.visible = s.starOpacity > 0.02
+      hemi.color.copy(s.ambientColor)
     }
   })
 
   return (
     <>
-      <ambientLight intensity={0.06} />
-      <hemisphereLight ref={hemiRef} groundColor="#26221c" intensity={0.2} />
+      <primitive object={starsMesh} />
       <directionalLight
         ref={sunRef}
-        castShadow
         position={[260, 340, 180]}
-        intensity={2.4}
-        shadow-mapSize={[QUALITY.shadowMapSize, QUALITY.shadowMapSize]}
-        shadow-camera-near={1}
-        shadow-camera-far={1400}
-        shadow-camera-left={-160}
-        shadow-camera-right={160}
-        shadow-camera-top={160}
-        shadow-camera-bottom={-160}
-        shadow-bias={-0.0004}
+        intensity={2.8}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-near={10}
+        shadow-camera-far={2000}
+        shadow-camera-left={-100}
+        shadow-camera-right={100}
+        shadow-camera-top={100}
+        shadow-camera-bottom={-100}
       />
-      <Starfield opacityRef={starsRef} />
+      <hemisphereLight ref={hemiRef} intensity={0.4} color="#5a7088" groundColor="#11141a" />
     </>
-  )
-}
-
-function Starfield({ opacityRef }: { opacityRef: React.MutableRefObject<THREE.Points> }) {
-  const geometry = useMemo(() => {
-    const count = QUALITY.starCount
-    const positions = new Float32Array(count * 3)
-    const colors = new Float32Array(count * 3)
-    let seed = 7
-    const rand = () => {
-      seed = (seed * 16807) % 2147483647
-      return seed / 2147483647
-    }
-    for (let i = 0; i < count; i++) {
-      // Shell around the whole route corridor.
-      const theta = rand() * Math.PI * 2
-      const phi = Math.acos(2 * rand() - 1)
-      const r = 3800 + rand() * 800
-      positions[i * 3] = 300 + r * Math.sin(phi) * Math.cos(theta)
-      positions[i * 3 + 1] = r * Math.cos(phi)
-      positions[i * 3 + 2] = -1050 + r * Math.sin(phi) * Math.sin(theta)
-      const shade = 0.7 + rand() * 0.3
-      const warm = rand() < 0.18
-      colors[i * 3] = shade
-      colors[i * 3 + 1] = shade * (warm ? 0.9 : 0.96)
-      colors[i * 3 + 2] = shade * (warm ? 0.75 : 1)
-    }
-    const geo = new THREE.BufferGeometry()
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-    return geo
-  }, [])
-
-  useEffect(() => () => geometry.dispose(), [geometry])
-
-  return (
-    <points ref={opacityRef} geometry={geometry} frustumCulled={false}>
-      <pointsMaterial
-        size={1.7}
-        sizeAttenuation={false}
-        vertexColors
-        transparent
-        opacity={0}
-        depthWrite={false}
-      />
-    </points>
   )
 }

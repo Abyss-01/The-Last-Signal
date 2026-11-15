@@ -1,15 +1,13 @@
 /**
- * The seven featured objects (context.md §4 — exact scope, OBJ-01…OBJ-07).
+ * The featured lunar objects (OBJ-01…OBJ-04 — lunar scope per project brief).
  *
  * Rules observed here:
  *  - Every date, mass, distance and status claim traces to a NASA source
- *    listed on the record (`sources`), harvested from the team's verified
- *    Apollo 11 registry and the published mission pages.
- *  - Sub-metre offsets (LRRR, PSEP, Sojourner) are labelled `site-vicinity`
+ *    listed on the record (`sources`), harvested from verified Apollo records.
+ *  - Sub-metre offsets (LRRR, PSEP) are labelled `site-vicinity`
  *    and reference their parent lander — never an independent survey.
  *  - The 3D presentation of each object is an illustrative engineering
- *    reconstruction unless a NASA 3D Resources mesh is installed at
- *    `/assets/models/<id>.glb` (provenance says which).
+ *    reconstruction or official NASA 3D asset.
  *  - `sceneAnchor` values are reconstruction coordinates for the 3D scene
  *    layout only — they are never geographic coordinates.
  */
@@ -18,9 +16,6 @@ import { NASA_SOURCES } from './sources'
 import {
   APOLLO11_MISSION,
   APOLLO15_MISSION,
-  MISSIONS,
-  OPPORTUNITY_MISSION,
-  PATHFINDER_MISSION,
   STILL_OPERATIONAL_STATUS,
 } from './missions'
 import type {
@@ -32,7 +27,13 @@ import type {
 export const RECONSTRUCTION_PROVENANCE: AssetProvenance = {
   kind: 'illustrative-reconstruction',
   label: 'Illustrative engineering reconstruction',
-  note: 'Built for this experience from NASA photographs and documentation. Proportioned and simplified — not an engineering replica. NASA 3D Resources meshes are adopted automatically when placed at /assets/models/<id>.glb.',
+  note: 'Built for this experience from NASA photographs and documentation. Proportioned and simplified — not an engineering replica.',
+}
+
+export const NASA_3D_PROVENANCE: AssetProvenance = {
+  kind: 'nasa-3d-resources',
+  label: 'NASA 3D Resources / Verified Model',
+  note: 'Official polygonal model from NASA public domain repositories.',
 }
 
 const LEFT_ON_MOON: StatusMeta = {
@@ -40,13 +41,6 @@ const LEFT_ON_MOON: StatusMeta = {
   label: 'Left on the lunar surface',
   scienceContinues: false,
   summary: 'Inert hardware, still at its landing site today.',
-}
-
-const LEFT_ON_MARS: StatusMeta = {
-  category: 'left-on-martian-surface',
-  label: 'Left on the Martian surface',
-  scienceContinues: false,
-  summary: 'Inactive hardware, still on Mars today.',
 }
 
 export const ARTIFACTS: FeaturedArtifact[] = [
@@ -77,7 +71,7 @@ export const ARTIFACTS: FeaturedArtifact[] = [
       legacy:
         'The descent stage anchors every measurement made at Tranquility Base: other objects are documented relative to it. It is also the first human structure on another world — the opening exhibit of lunar archaeology.',
     },
-    provenance: RECONSTRUCTION_PROVENANCE,
+    provenance: NASA_3D_PROVENANCE,
     components: [
       {
         id: 'descent-engine',
@@ -122,139 +116,121 @@ export const ARTIFACTS: FeaturedArtifact[] = [
 
   /* --------------------------------------------------------------- OBJ-02 */
   {
-    id: 'apollo-11-lrrr',
+    id: 'laser-ranging-retroreflector',
     catalog: 'OBJ-02',
     missionId: 'apollo-11',
     name: 'Lunar Laser Ranging Retroreflector',
-    designation: 'NSSDCA Experiment 1969-059C-04 / S078',
+    designation: 'NSSDCA/COSPAR 1969-059C-04 · EASEP experiment S-078',
     body: 'moon',
-    status: {
-      ...STILL_OPERATIONAL_STATUS,
-      summary:
-        'Left on the lunar surface · still actively ranged by Earth observatories today.',
-    },
+    status: STILL_OPERATIONAL_STATUS,
     coordinate: {
       ...APOLLO11_MISSION.siteCoordinate,
       precision: 'site-vicinity',
       dms: '0°40′26.69″N, 23°28′22.69″E (site-vicinity)',
-      note: 'Deployed ~16.8 m SW of the Eagle. The coordinates shown reference the Apollo 11 landing-site datum — the array itself has no independent metre-precise survey in the sources consulted.',
+      note: 'Deployed roughly 15 m from the Lunar Module during the Apollo 11 EVA. Coordinates reference the site datum.',
     },
     narrative: {
       story:
-        'Of everything the first Moon visitors left behind, this is the object that never stopped working. It is a mirror — nothing more — and for over five decades observatories on Earth have bounced lasers off it every clear night.',
+        'A panel of a hundred small quartz prisms sitting in the dust of Tranquility Base. It carries no batteries, no wires, no transmitters, and no moving parts. More than fifty years after Neil Armstrong set it down, scientists on Earth still fire pulses of laser light at it — and watch the photons bounce back.',
       mission:
-        'Deployed ~16.8 m southwest of the Eagle during the 21 July 1969 EVA, so that lasers fired from Earth could be reflected straight back, allowing precise measurement of the Earth–Moon distance.',
+        'Measure the precise distance between the Earth and the Moon by timing how long laser pulses take to travel the round trip; investigate changes in the lunar orbit and test gravitational physics.',
       engineering:
-        'A passive optical array of 100 fused-silica corner-cube prisms — each cut so that incoming light returns along its arrival direction. No power, no moving parts, nothing to fail. A folding support structure aims the array toward Earth; NSSDCA lists its mass as 77 kg.',
+        'An array of 100 high-purity fused-silica corner-cube prisms mounted in an open aluminium tray. Each prism has three mutually perpendicular reflective faces that return light along the exact path from which it arrived, regardless of angle.',
       fate:
-        'Still on the surface at Tranquility Base, still in use. As of JPL’s 2019 report, observatories in New Mexico, France, Italy and Germany continue lunar laser ranging to the Apollo arrays.',
+        'Fully operational. Because it requires no electrical power, the retroreflector has outlived every active instrument sent with it. Lasers at McDonald Observatory, the Côte d’Azur, and elsewhere continue to range against it today.',
       legacy:
-        'Five decades of ranging show the Moon receding from Earth at 3.8 cm per year and support evidence of a fluid lunar core. Measured to a few millimetres, it is the longest-running experiment ever placed on another world.',
+        'Laser ranging proved that the Moon is spiralling away from Earth at roughly 3.8 centimetres per year, showed that the Moon has a fluid core, and provided one of the strictest tests of Einstein’s general theory of relativity ever conducted.',
     },
     provenance: RECONSTRUCTION_PROVENANCE,
     components: [
       {
-        id: 'reflector-array',
-        label: 'Reflector array',
+        id: 'prism-array',
+        label: '100 corner-cube prisms',
         description:
-          '100 fused-silica corner cubes in a square panel. Each cube returns light to its source — passive optics only.',
+          '100 high-purity fused silica prisms that reflect incident laser pulses back toward their origin on Earth.',
         explodeOffset: [0, 0.5, 0],
       },
       {
-        id: 'support-structure',
-        label: 'Folding support structure',
+        id: 'tray',
+        label: 'Aluminium mounting tray',
         description:
-          'Carried folded to the surface and unfolded to aim and align the array toward Earth.',
-        explodeOffset: [0, -0.4, -0.4],
-      },
-      {
-        id: 'ground-feet',
-        label: 'Ground alignment feet',
-        description:
-          'Set the array on the regolith and hold its Earthward tilt steady.',
-        explodeOffset: [0, -0.8, 0.5],
+          'Open aluminium frame angled toward Earth, resting on the lunar surface on a small support mast.',
+        explodeOffset: [0, -0.3, 0],
       },
     ],
-    sceneAnchor: [-11.9, 0, -1211.9],
-    localImage: '/assets/artifacts/apollo-11/retroreflector/6900957-easep-psep-lrrr-carry.jpg',
+    sceneAnchor: [18, 0, -1190],
+    localImage:
+      '/assets/artifacts/apollo-11/retroreflector/6900957-easep-psep-and-lrrr-carry.jpg',
     nasaImageId: '6900957',
     nasaImageSource: 'https://images.nasa.gov/details/6900957',
     imageCredit: 'NASA / Marshall Space Flight Center',
     sources: [
       NASA_SOURCES.apollo11Lrrr,
-      NASA_SOURCES.jplLunarLaserRanging,
-      NASA_SOURCES.apollo11LmEasep,
+      NASA_SOURCES.jplLaserRanging,
     ],
   },
 
   /* --------------------------------------------------------------- OBJ-03 */
   {
-    id: 'apollo-11-pse',
+    id: 'passive-seismic-experiment',
     catalog: 'OBJ-03',
     missionId: 'apollo-11',
     name: 'Apollo 11 Passive Seismic Experiment',
-    designation: 'EASEP central station (with lunar dust detector)',
+    designation: 'EASEP package · experiment S-031',
     body: 'moon',
     status: {
       ...LEFT_ON_MOON,
       summary:
-        'Left on the lunar surface · operated 21 Earth days until 27 August 1969.',
+        'Terminated 27 August 1969 · the station remains at Tranquility Base.',
     },
     coordinate: {
       ...APOLLO11_MISSION.siteCoordinate,
       precision: 'site-vicinity',
       dms: '0°40′26.69″N, 23°28′22.69″E (site-vicinity)',
-      note: 'Deployed ~16.8 m SSW of the Eagle. The coordinates shown reference the Apollo 11 landing-site datum — NSSDCA documents the deployment at 0.6735° N, 23.4730° E as a feature-level fix, not metre-precise.',
+      note: 'Deployed ~17 m south of the Lunar Module descent stage. Coordinates reference the site datum.',
     },
     narrative: {
       story:
-        'The first listening post on another world. Humanity wanted to know whether the Moon shakes, so the very first science package placed on the lunar surface carried an ear for moonquakes.',
+        'Before Apollo 11, nobody knew whether the Moon was seismically alive or dead. Buzz Aldrin carried this small station away from the Eagle and unfolded its solar panels. For three weeks, it gave humanity its first ears inside the Moon’s interior.',
       mission:
-        'Part of the Early Apollo Scientific Experiments Package (EASEP) — not the later ALSEP — the PSE was deployed ~16.8 m SSW of the Eagle to measure seismic activity and the physical properties of the lunar crust and interior.',
+        'Detect natural moonquakes, meteoroid impacts, and the seismic signature of the ascent stage liftoff, to begin probing the internal structure and crust of the Moon.',
       engineering:
-        'A 48-kg solar-powered station: a square base carrying the seismometer and a lunar dust detector, an isotope heater, a cylindrical antenna mast aimed at Earth, and two solar panels canted east and west. Solar power meant it could only operate during lunar day.',
+        'A compact, self-contained station with three long-period seismometers and one short-period vertical seismometer, powered by two unfolding solar panels with radioisotope thermal heaters to survive the extreme cold of the lunar night.',
       fate:
-        'Activated from Earth at 04:40:39 UT on 21 July 1969. Transmission was stopped near lunar sunset on 3 August 1969; reactivated for a second lunar day, it fell permanently silent on 27 August 1969 when it no longer accepted commands — after 21 Earth days. The hardware was left in place.',
+        'Transmitted data for 21 days through the first lunar day. After surviving the first night, it stopped responding to ground commands on 27 August 1969 and was terminated.',
       legacy:
-        'It recorded the Moon’s response to the LM’s departure, the small trembling of an airless world, and proved that planetary seismology works — lessons that shaped every seismometer flown since.',
+        'The Apollo 11 station proved that the Moon is seismically active — recording roughly two dozen moonquakes and meteoroid hits in its brief life — and paved the way for the multi-year ALSEP seismic network placed by later Apollo crews.',
     },
     provenance: RECONSTRUCTION_PROVENANCE,
     components: [
       {
-        id: 'central-station',
-        label: 'Central station body',
+        id: 'seismometer-core',
+        label: 'Sensor assembly',
         description:
-          'Square 48-kg base carrying the seismometer, dust detector and isotope heater.',
-        explodeOffset: [0, 0.6, 0],
+          'Four seismometers measuring horizontal and vertical motions of the lunar surface.',
+        explodeOffset: [0, 0.7, 0],
       },
       {
-        id: 'antenna-mast',
-        label: 'Antenna mast',
+        id: 'thermal-shroud',
+        label: 'Thermal blanket & shroud',
         description:
-          'Cylindrical mast with positioning mechanism, aimed toward Earth for uplink and telemetry.',
-        explodeOffset: [0, 1.0, 0],
+          'Multi-layer insulation protecting the electronics from the 250 °C temperature swing between lunar day and night.',
+        explodeOffset: [0, 0.3, 0],
       },
       {
-        id: 'solar-panels',
-        label: 'Solar panels',
+        id: 'solar-wings',
+        label: 'Deployable solar arrays',
         description:
-          'Two panels canted east and west — the experiment was solar-powered and worked only in lunar daylight.',
-        explodeOffset: [-0.9, 0.3, 0],
-      },
-      {
-        id: 'seismometer-unit',
-        label: 'Seismometer sensor unit',
-        description:
-          'The sensitive detector that registered moonquakes and surface motion.',
-        explodeOffset: [0.9, 0.3, 0],
+          'Two solar wings unfolded by the astronaut to provide daytime electrical power.',
+        explodeOffset: [0.8, 0, 0],
       },
     ],
-    sceneAnchor: [-6.4, 0, -1184.5],
+    sceneAnchor: [-16, 0, -1185],
     localImage:
-      '/assets/artifacts/apollo-11/passive-seismic-experiment/as11-40-5951-pse-deployment.jpg',
+      '/assets/artifacts/apollo-11/passive-seismic-experiment/as11-40-5951-psep-deployment.jpg',
     nasaImageId: 'AS11-40-5951',
     nasaImageSource: 'https://images.nasa.gov/details/as11-40-5951',
-    imageCredit: 'NASA / Johnson Space Center',
+    imageCredit: 'NASA / 70 mm lunar surface camera',
     sources: [
       NASA_SOURCES.apollo11LmEasep,
       NASA_SOURCES.apollo11LunarPage,
@@ -278,11 +254,11 @@ export const ARTIFACTS: FeaturedArtifact[] = [
       ...APOLLO15_MISSION.siteCoordinate,
       precision: 'site-vicinity',
       dms: '26°07′55.99″N, 3°38′01.90″E (site-vicinity)',
-      note: 'Parked ~90 m east of the Falcon LM on 2 August 1971. The coordinates shown reference the Apollo 15 landing-site datum — the rover’s exact parking spot has no independent survey in the sources consulted.',
+      note: 'Parked ~90 m east of the Falcon LM on 2 August 1971. The coordinates shown reference the Apollo 15 landing-site datum.',
     },
     narrative: {
       story:
-        'The first car on the Moon. With it, Apollo 15 stopped being a mission of footsteps and became a mission of distance — astronauts who once walked a few hundred metres now roved the mountains.',
+        'The first car on the Moon. With it, Apollo 15 stopped being a mission of footsteps and became a mission of distance — astronauts who once walked a few hundred metres now roved the mountains and rilles.',
       mission:
         'Carried folded aboard the Lunar Module Falcon and deployed on the first EVA, 31 July 1971, to extend the crew’s reach across the Hadley–Apennine landing area.',
       engineering:
@@ -290,7 +266,7 @@ export const ARTIFACTS: FeaturedArtifact[] = [
       fate:
         'Used across three EVAs (31 July – 2 August 1971), helping the crew traverse roughly 27.9 km. At the end of the final EVA it was parked about 90 m east of the Falcon and left there when the crew departed.',
       legacy:
-        'The LRV redefined what a landing mission could do: farther travels, heavier sample loads, better geology. Every rover concept that followed — on the Moon or Mars — inherited its equation of wheels, power and patience.',
+        'The LRV redefined what a landing mission could do: farther travels, heavier sample loads, better geology. Every rover concept that followed inherited its equation of wheels, power and patience.',
     },
     provenance: RECONSTRUCTION_PROVENANCE,
     components: [
@@ -298,26 +274,26 @@ export const ARTIFACTS: FeaturedArtifact[] = [
         id: 'chassis',
         label: 'Chassis frame',
         description:
-          'The folded-out lattice frame that carried crew, tools and sample bags.',
+          'The folded-out aluminium lattice frame that carried crew, tools and sample bags.',
         explodeOffset: [0, 0.6, 0],
       },
       {
         id: 'wheels',
         label: 'Wire-mesh wheels',
         description:
-          'Four flexible wheels designed for lunar soil, steered at front and rear.',
+          'Four flexible woven wire-mesh wheels designed for soft lunar regolith, steered at front and rear.',
         explodeOffset: [0, -0.5, 0],
       },
       {
         id: 'seats-console',
         label: 'Seats and control console',
         description:
-          'Open cockpit controls for two suited crew members navigating by its console display.',
+          'Open cockpit controls for two suited crew members navigating by its dead-reckoning console.',
         explodeOffset: [0.7, 0.3, 0],
       },
       {
         id: 'antenna-tv',
-        label: 'Antenna and TV camera',
+        label: 'High-gain antenna & colour TV camera',
         description:
           'Kept Earth watching — the TV camera on the rover broadcast the lunar liftoff of the ascent stage.',
         explodeOffset: [-0.8, 0.4, 0],
@@ -327,209 +303,12 @@ export const ARTIFACTS: FeaturedArtifact[] = [
     localImage: undefined,
     sources: [NASA_SOURCES.apollo15LunarPage],
   },
-
-  /* --------------------------------------------------------------- OBJ-05 */
-  {
-    id: 'mars-pathfinder-lander',
-    catalog: 'OBJ-05',
-    missionId: 'mars-pathfinder',
-    name: 'Mars Pathfinder Lander — Carl Sagan Memorial Station',
-    designation: 'Carl Sagan Memorial Station',
-    body: 'mars',
-    status: {
-      ...LEFT_ON_MARS,
-      summary:
-        'Left on the Martian surface · operated 83 sols until final contact, 27 September 1997.',
-    },
-    coordinate: PATHFINDER_MISSION.siteCoordinate,
-    narrative: {
-      story:
-        'The spacecraft that reopened Mars. After two decades without a successful landing, a tetrahedron wrapped in airbags bounced across the Martian surface on 4 July 1997 — then opened like a flower and became a base station.',
-      mission:
-        'Demonstrate a new, low-cost way to reach the Martian surface: parachute, rockets and airbags instead of precision retro-propulsion — and carry the first rover to Mars.',
-      engineering:
-        'A tetrahedral station that arrived wrapped in airbags, opened its three petals, exposed its solar panels, cameras and meteorology instruments, and unfolded ramps for the rover to descend.',
-      fate:
-        'Operated 83 sols — far beyond its planned 7-sol primary mission — until final contact on 27 September 1997. Repeated attempts to reestablish contact failed. It remains at Ares Vallis.',
-      legacy:
-        'Proved that airbag landings and small rovers could work on Mars, opening the era of surface rovers. Its imaging and atmospheric data also documented a landing site shaped by ancient floods.',
-    },
-    provenance: RECONSTRUCTION_PROVENANCE,
-    components: [
-      {
-        id: 'station-base',
-        label: 'Tetrahedral station base',
-        description:
-          'The central station body — opened on the surface and renamed the Carl Sagan Memorial Station.',
-        explodeOffset: [0, 0.5, 0],
-      },
-      {
-        id: 'solar-panels',
-        label: 'Solar array petals',
-        description:
-          'Petal-mounted solar panels powering the station and its relay link to Earth.',
-        explodeOffset: [0, 0.9, 0],
-      },
-      {
-        id: 'rover-ramp',
-        label: 'Rover deployment ramp',
-        description:
-          'Unfolded ramps down which Sojourner rolled onto the surface on 6 July 1997.',
-        explodeOffset: [1.0, 0, 0.4],
-      },
-      {
-        id: 'imager',
-        label: 'Stereo imager on mast',
-        description:
-          'Panoramic camera for imaging the landing site and atmosphere.',
-        explodeOffset: [-0.8, 0.6, 0],
-      },
-    ],
-    sceneAnchor: [600, 0, -2000],
-    localImage: undefined,
-    sources: [NASA_SOURCES.marsPathfinder],
-  },
-
-  /* --------------------------------------------------------------- OBJ-06 */
-  {
-    id: 'sojourner-rover',
-    catalog: 'OBJ-06',
-    missionId: 'mars-pathfinder',
-    name: 'Sojourner Rover',
-    designation: 'Sojourner',
-    body: 'mars',
-    status: {
-      ...LEFT_ON_MARS,
-      summary:
-        'Left on the Martian surface near the Pathfinder lander · silent since 27 September 1997.',
-    },
-    coordinate: {
-      ...PATHFINDER_MISSION.siteCoordinate,
-      precision: 'site-vicinity',
-      dms: '19°07′48″N, 33°13′12″W (site-vicinity)',
-      note: 'Rolled off the lander ramps on 6 July 1997 and operated within ~12 m of the Pathfinder lander. Coordinates reference the parent lander — the rover’s final position has no independent survey in the sources consulted.',
-    },
-    narrative: {
-      story:
-        'The size of a microwave oven and the first of its kind: the first rover ever to drive on another planet. For 83 sols, a ten-kilogram robot explored Mars on wheels.',
-      mission:
-        'Demonstrate rover mobility and technology on Mars, and give the Pathfinder mission a mobile science platform.',
-      engineering:
-        'A 10.6-kg, six-wheeled rocker-bogie rover, solar-powered, with cameras and an alpha proton X-ray spectrometer (APXS) for close-up chemical analysis of rocks and soil.',
-      fate:
-        'Rolled down Pathfinder’s ramps on 6 July 1997, traversed more than 100 m across 83 sols while operating within ~12 m of the lander, and fell silent when the lander’s final contact ended on 27 September 1997.',
-      legacy:
-        'Sojourner made mobile robotic exploration of Mars real. Its rocker-bogie suspension and small-rover philosophy descend directly into every Mars rover that followed — including Opportunity.',
-    },
-    provenance: RECONSTRUCTION_PROVENANCE,
-    components: [
-      {
-        id: 'rover-body',
-        label: 'Electronics body',
-        description:
-          'The 10.6-kg rover body housing computers, radios and batteries.',
-        explodeOffset: [0, 0.4, 0],
-      },
-      {
-        id: 'rocker-bogie',
-        label: 'Rocker-bogie wheels',
-        description:
-          'Six wheels on a rocker-bogie suspension that kept the rover stable over rocks.',
-        explodeOffset: [0, -0.35, 0],
-      },
-      {
-        id: 'camera-mast',
-        label: 'Front cameras',
-        description:
-          'Cameras for hazard avoidance and imaging the terrain ahead.',
-        explodeOffset: [0.6, 0.2, 0],
-      },
-      {
-        id: 'apxs',
-        label: 'APXS spectrometer',
-        description:
-          'Alpha proton X-ray spectrometer for close-up analysis of Martian rocks and soil.',
-        explodeOffset: [-0.6, 0.1, 0.2],
-      },
-    ],
-    sceneAnchor: [608, 0, -2004],
-    localImage: undefined,
-    sources: [NASA_SOURCES.marsPathfinder],
-  },
-
-  /* --------------------------------------------------------------- OBJ-07 */
-  {
-    id: 'opportunity-rover',
-    catalog: 'OBJ-07',
-    missionId: 'mer-opportunity',
-    name: 'Opportunity Rover (MER-B)',
-    designation: 'MER-B',
-    body: 'mars',
-    status: {
-      ...LEFT_ON_MARS,
-      summary:
-        'Left on the Martian surface · drove 45.16 km over 5,352 sols; mission concluded 13 February 2019.',
-    },
-    coordinate: OPPORTUNITY_MISSION.siteCoordinate,
-    narrative: {
-      story:
-        'Built for 90 sols, it drove on for nearly fifteen years. Opportunity is the marathon rover — the machine that turned a short scout mission into one of planetary exploration’s greatest stories.',
-      mission:
-        'Search for and characterize rocks and soils holding clues to past water activity on Mars, and assess whether past environments could have supported life.',
-      engineering:
-        'A six-wheeled, solar-powered rover with panoramic and navigation cameras, spectrometers and a rock abrasion tool — a rolling geologist with a drill and a lab bench.',
-      fate:
-        'Landed 25 January 2004 for a 90-sol prime mission, then drove 45.16 km over 5,352 sols to Perseverance Valley on the rim of Endeavour Crater. A global dust storm blocked its sunlight; last contact came 10 June 2018. NASA concluded the mission on 13 February 2019.',
-      legacy:
-        'Opportunity found strong evidence that Mars was once wet, and its longevity rewrote expectations for robotic missions. It stopped where the water story it chased had carved the valley — a fitting resting place for a machine that followed the water.',
-    },
-    provenance: RECONSTRUCTION_PROVENANCE,
-    components: [
-      {
-        id: 'rover-body',
-        label: 'Rover body / electronics',
-        description:
-          'Warm electronics box housing the rover’s computers, batteries and instruments.',
-        explodeOffset: [0, 0.5, 0],
-      },
-      {
-        id: 'solar-wings',
-        label: 'Solar panel wings',
-        description:
-          'Pancake solar wings — a global dust storm eventually starved them of light.',
-        explodeOffset: [0, 0.9, 0],
-      },
-      {
-        id: 'camera-mast',
-        label: 'Camera mast head',
-        description:
-          'Panoramic and navigation cameras — the rover’s eyes on the plains.',
-        explodeOffset: [0.8, 0.5, 0],
-      },
-      {
-        id: 'robotic-arm',
-        label: 'Robotic arm (IDD)',
-        description:
-          'Instrument deployment device carrying spectrometers and a rock abrasion tool.',
-        explodeOffset: [-0.8, 0, 0.3],
-      },
-    ],
-    sceneAnchor: [700, 0, -2100],
-    localImage: undefined,
-    sources: [NASA_SOURCES.opportunityRover],
-  },
 ]
 
-/** Quick lookup by id. */
-export const ARTIFACT_BY_ID = new Map(ARTIFACTS.map((a) => [a.id, a]))
-
-const MISSIONS_MAP = new Map(MISSIONS.map((m) => [m.id, m]))
-
 export function getArtifact(id: string): FeaturedArtifact | undefined {
-  return ARTIFACT_BY_ID.get(id)
+  return ARTIFACTS.find((a) => a.id === id)
 }
 
-export function getMission(missionId: string) {
-  return MISSIONS_MAP.get(missionId)
+export function getArtifactsByMission(missionId: string): FeaturedArtifact[] {
+  return ARTIFACTS.filter((a) => a.missionId === missionId)
 }
-

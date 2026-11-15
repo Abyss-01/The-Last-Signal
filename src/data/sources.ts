@@ -27,6 +27,12 @@ export const NASA_SOURCES = {
     publisher: 'NASA Space Science Data Coordinated Archive (NSSDCA)',
     url: 'https://nssdc.gsfc.nasa.gov/nmc/experiment/display.action?id=1969-059C-04',
   },
+  jplLaserRanging: {
+    id: 'jpl-llr-2019',
+    title: 'The Apollo Experiment That Keeps on Giving (JPL News, 24 July 2019)',
+    publisher: 'NASA Jet Propulsion Laboratory, California Institute of Technology',
+    url: 'https://www.jpl.nasa.gov/news/the-apollo-experiment-that-keeps-on-giving/',
+  },
   jplLunarLaserRanging: {
     id: 'jpl-llr-2019',
     title: 'The Apollo Experiment That Keeps on Giving (JPL News, 24 July 2019)',
@@ -38,18 +44,6 @@ export const NASA_SOURCES = {
     title: 'Apollo 15 (NSSDCA Lunar Science archive page)',
     publisher: 'NASA Space Science Data Coordinated Archive (NSSDCA)',
     url: 'https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo15.html',
-  },
-  marsPathfinder: {
-    id: 'nasa-mars-pathfinder',
-    title: 'Mars Pathfinder (NASA Mars exploration archive)',
-    publisher: 'NASA / Jet Propulsion Laboratory',
-    url: 'https://mars.nasa.gov/mars-pathfinder/',
-  },
-  opportunityRover: {
-    id: 'nasa-mer-opportunity',
-    title: 'Mars Exploration Rover: Opportunity (NASA Mars exploration archive)',
-    publisher: 'NASA / Jet Propulsion Laboratory',
-    url: 'https://mars.nasa.gov/mer/mission/rover-opportunity/',
   },
   nasaHistory: {
     id: 'nasa-history',

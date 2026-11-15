@@ -7,7 +7,7 @@ import { Terrain, ArtifactMarker, EarthInSky, useInRange } from './shared'
 import type { FeaturedArtifact } from '@/data/types'
 
 /**
- * Moon acts (progress 0.30 → 0.66): a single cratered regolith zone
+ * Lunar Surface Act (progress 0.72 → 0.94): a single cratered regolith zone
  * holding Tranquility Base (OBJ-01…03, Apollo 11) and Hadley–Apennine
  * (OBJ-04, Apollo 15), with Earth hanging in the black sky.
  */
@@ -38,8 +38,8 @@ const terrainOptions = {
 
 const MARKER_RADII: Record<string, number> = {
   'eagle-descent-stage': 7.5,
-  'apollo-11-lrrr': 2,
-  'apollo-11-pse': 2.2,
+  'laser-ranging-retroreflector': 2.5,
+  'passive-seismic-experiment': 2.5,
   'apollo-15-lrv': 3.6,
 }
 
@@ -58,7 +58,10 @@ export function LunarSurfaceAct({
     () => ARTIFACTS.filter((a) => a.body === 'moon'),
     [],
   )
-  const earthVisible = useInRange(progressRef, 0.26, 0.7)
+  const actVisible = useInRange(progressRef, 0.54, 0.98)
+  const earthVisible = useInRange(progressRef, 0.56, 0.98)
+
+  if (!actVisible) return null
 
   return (
     <group>
@@ -67,22 +70,29 @@ export function LunarSurfaceAct({
       {earthVisible && <EarthInSky position={[-420, 470, -1580]} scale={26} />}
 
       {/* Apollo 11 — Tranquility Base */}
-      {lunarArtifacts.slice(0, 3).map((artifact) => (
-        <ArtifactMesh
-          key={artifact.id}
-          artifact={artifact}
-          explodedRef={explodedRef}
-          activeComponent={activeComponent}
-          onSelect={onSelect}
-        />
-      ))}
+      {lunarArtifacts.slice(0, 3).map((artifact) => {
+        // Eagle Descent Stage is displayed by LunarModuleBreakdown during 0.56..0.76
+        // Only render the static resting ArtifactMesh after breakdown completes (> 0.76)
+        if (artifact.id === 'eagle-descent-stage' && progressRef.current <= 0.76) {
+          return null
+        }
+        return (
+          <ArtifactMesh
+            key={artifact.id}
+            artifact={artifact}
+            explodedRef={explodedRef}
+            activeComponent={activeComponent}
+            onSelect={onSelect}
+          />
+        )
+      })}
       {lunarArtifacts.slice(0, 3).map((artifact) => (
         <ArtifactMarker
           key={`marker-${artifact.id}`}
           artifact={artifact}
           progressRef={progressRef}
           onSelect={onSelect}
-          range={[0.3, 0.52]}
+          range={[0.74, 0.92]}
           radius={MARKER_RADII[artifact.id] ?? 2.5}
           lift={artifact.id === 'eagle-descent-stage' ? 5.4 : 2.6}
         />
@@ -105,7 +115,7 @@ export function LunarSurfaceAct({
           artifact={artifact}
           progressRef={progressRef}
           onSelect={onSelect}
-          range={[0.52, 0.66]}
+          range={[0.78, 0.94]}
           radius={MARKER_RADII[artifact.id] ?? 3}
           lift={3.4}
         />
@@ -114,11 +124,6 @@ export function LunarSurfaceAct({
   )
 }
 
-/**
- * Falcon's descent stage as unlabelled scene context — the LRV narrative
- * references being parked ~90 m east of it. Context geometry only; not a
- * featured object and not interactive.
- */
 function FalconContext() {
   return (
     <group position={[252, 0, -1400]}>
