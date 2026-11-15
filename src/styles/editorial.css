@@ -1,0 +1,274 @@
+/* ---------------------------------------------------------------------------
+   Abandoned, Not Forgotten — editorial design system (Quark Babies)
+   A 1969-inspired archival broadsheet: newsprint paper, primary ink,
+   archival ochre and active-science green, hairline rules, serif + mono.
+   No rounded SaaS cards, no neon gradients.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Newsprint stock */
+  --paper: #f4efe6;
+  --paper-tinted: #ebe3d3;
+  --paper-deep: #e3d9c4;
+
+  /* Ink */
+  --ink-primary: #161513;
+  --ink-secondary: #4c463c;
+  --ink-faint: #8a8272;
+
+  /* Accents */
+  --ochre: #9c4221;
+  --science-green: #235c3b;
+  --rule: #16151322;
+  --rule-strong: #16151355;
+
+  /* Type */
+  --font-headline: 'Playfair Display', Georgia, serif;
+  --font-body: 'Newsreader', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Base ------------------------------------------------------------------ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--ochre);
+  color: var(--paper);
+}
+
+/* Typographic utilities ------------------------------------------------- */
+
+.ed-mono {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.ed-mono-sm {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.ed-serif {
+  font-family: var(--font-headline);
+}
+
+.ed-body {
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--ink-primary);
+}
+
+/* Rules ----------------------------------------------------------------- */
+
+.ed-rule {
+  border: 0;
+  border-top: 1px solid var(--ink-primary);
+  margin: 0;
+}
+
+.ed-rule-thin {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+.ed-rule-double {
+  border: 0;
+  border-top: 1px solid var(--ink-primary);
+  border-bottom: 1px solid var(--ink-primary);
+  height: 3px;
+  margin: 0;
+}
+
+/* Paper column (the broadsheet grid) ------------------------------------ */
+
+.ed-sheet {
+  background:
+    linear-gradient(0deg, rgba(22, 21, 19, 0.015), rgba(22, 21, 19, 0.015)),
+    var(--paper);
+  color: var(--ink-primary);
+}
+
+.ed-drop-cap::first-letter {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 3.4em;
+  float: left;
+  line-height: 0.85;
+  padding-right: 0.12em;
+  padding-top: 0.05em;
+  color: var(--ink-primary);
+}
+
+/* Plate frames (archival image mounts) ---------------------------------- */
+
+.ed-plate {
+  background: var(--paper-tinted);
+  border: 1px solid var(--rule-strong);
+  padding: 6px;
+}
+
+.ed-plate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.82) contrast(1.04);
+}
+
+.ed-plate-fallback {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(22, 21, 19, 0.05) 0 1px,
+      transparent 1px 7px
+    ),
+    var(--paper-deep);
+  border: 1px solid var(--rule-strong);
+  min-height: 120px;
+}
+
+/* Archive plate (missing local image) stays styled and labelled. */
+
+/* Buttons (sharp, inked — no SaaS rounding) ------------------------------ */
+
+.ed-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink-primary);
+  background: var(--ink-primary);
+  color: var(--paper);
+  padding: 0.8rem 1.4rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.ed-btn:hover {
+  background: var(--ochre);
+  border-color: var(--ochre);
+}
+
+.ed-btn-ghost {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-primary);
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.ed-btn-ghost:hover {
+  border-color: var(--ink-primary);
+}
+
+.ed-btn-ghost.is-active {
+  background: var(--ink-primary);
+  color: var(--paper);
+  border-color: var(--ink-primary);
+}
+
+/* Journal drawer (dossier modal) ---------------------------------------- */
+
+.ed-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 21, 19, 0.55);
+  z-index: 60;
+}
+
+.ed-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(560px, 94vw);
+  background: var(--paper);
+  border-left: 1px solid var(--ink-primary);
+  z-index: 61;
+  overflow-y: auto;
+  box-shadow: -18px 0 40px rgba(22, 21, 19, 0.25);
+}
+
+/* Catalog filters ------------------------------------------------------- */
+
+.ed-filter {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-secondary);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.ed-filter.is-active {
+  background: var(--ink-primary);
+  color: var(--paper);
+  border-color: var(--ink-primary);
+}
+
+/* Expedition (3D) pages keep the dark void — applied on body per route. */
+.ed-void-body {
+  background: #050507;
+  color: #ece9e2;
+}
+
+/* Scrollbars (paper-flavoured) ------------------------------------------ */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--paper-tinted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--rule-strong);
+  border: 2px solid var(--paper-tinted);
+}
+
+/* Accessibility --------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--ochre);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

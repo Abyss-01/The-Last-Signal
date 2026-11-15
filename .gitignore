@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local tooling / scratch (not part of the app)
+.claude/
+.assets-cache/
+compressed.zip
+/*.mjs
