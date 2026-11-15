@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "skills": {
+    "3d-website-architect": {
+      "source": "deveshpunjabi/3d-website-skill",
+      "sourceType": "github",
+      "skillPath": "skills/3d-website-architect/SKILL.md",
+      "computedHash": "3aab8f24713c832a71e88f58c05347093250bcc71c0d999f8d0b1b2e3e23c291"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "83485963700bcf11d5bf78118facb301676b69d918fee2e45a95e7f1a2840f6c"
+    },
+    "threejs-skills": {
+      "source": "sickn33/agentic-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/threejs-skills/SKILL.md",
+      "computedHash": "2ded1fc945184beb693355464db6a4f819cd2254e5f45988d67daba36baaa79f"
+    }
+  }
+}
