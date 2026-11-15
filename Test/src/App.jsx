@@ -8,6 +8,7 @@ import HoverCard from './components/HoverCard';
 import InfoPanel from './components/InfoPanel';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
+import CustomCursor from './components/CustomCursor';
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from './utils/motion';
 import { soundEngine } from './utils/audio';
 
@@ -183,6 +184,9 @@ export default function App() {
 
   return (
     <div className="igloo-app-root">
+      {/* Igloo Magnetic Custom Cursor */}
+      <CustomCursor isHovering3D={Boolean(hoveredComponent)} />
+
       {/* Fixed Fullscreen 3D Viewport */}
       <Viewport3D
         scrollProgress={scrollProgress}

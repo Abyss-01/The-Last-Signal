@@ -421,6 +421,7 @@ body {
   flex-direction: column;
   gap: 32px;
   position: relative;
+  overflow: hidden;
 }
 
 .colophon-card::before {
@@ -1363,6 +1364,96 @@ kbd {
 
 .btn:hover {
   background: #e2e8f0;
+}
+
+/* ==========================================================================
+   Particle Footer Interactive Canvas
+   ========================================================================== */
+.particle-footer-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+  border-radius: var(--radius-lg);
+}
+
+.particle-footer-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.colophon-header,
+.colophon-stats-grid,
+.colophon-actions {
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   Igloo.inc Magnetic Custom Cursor
+   ========================================================================== */
+.custom-cursor-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.custom-cursor-root.visible {
+  opacity: 1;
+}
+
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -3px;
+  background-color: var(--accent-cyan);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 10px var(--accent-cyan);
+  transition: transform 0.05s linear;
+}
+
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  margin-top: -16px;
+  margin-left: -16px;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: width 0.25s var(--ease-igloo), height 0.25s var(--ease-igloo),
+              margin 0.25s var(--ease-igloo), border-color 0.25s var(--ease-igloo),
+              background-color 0.25s var(--ease-igloo);
+}
+
+.custom-cursor-root.hovering .cursor-ring {
+  width: 56px;
+  height: 56px;
+  margin-top: -28px;
+  margin-left: -28px;
+  border-color: var(--accent-cyan);
+  background-color: rgba(56, 189, 248, 0.09);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+}
+
+.custom-cursor-root.hovering .cursor-dot {
+  transform: scale(0.5);
 }
 
 /* ==========================================================================

@@ -114,8 +114,34 @@ class SoundEngine {
     }
   }
 
+  playChime() {
+    if (this.isMuted || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const notes = [880, 1108.73, 1318.51]; // A5 major chord crystalline chime
+      notes.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.05);
+
+        gain.gain.setValueAtTime(0.04 / (i + 1), now + i * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 1.1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now + i * 0.05);
+        osc.stop(now + i * 0.05 + 1.2);
+      });
+    } catch {
+      // Audio safe fallback
+    }
+  }
+
   playStageTransition() {
     this.playChirp(620, 0.06, 0.06);
+    this.playChime();
   }
 }
 

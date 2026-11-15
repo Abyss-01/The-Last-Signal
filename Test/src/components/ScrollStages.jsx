@@ -1,4 +1,6 @@
 import React from 'react';
+import ScrambleText from './ScrambleText';
+import ParticleFooter from './ParticleFooter';
 
 export const SCROLL_CHAPTERS = [
   {
@@ -56,11 +58,23 @@ export default function ScrollStages({ activeChapterIndex, onJumpToChapter }) {
         >
           <div className="story-card">
             <div className="story-meta-row">
-              <span className="story-tag">{chap.tag}</span>
+              <span className="story-tag">
+                {activeChapterIndex === idx ? (
+                  <ScrambleText text={chap.tag} triggerKey={activeChapterIndex} duration={450} />
+                ) : (
+                  chap.tag
+                )}
+              </span>
               <span className="story-index">{chap.index} / 04</span>
             </div>
 
-            <h2 className="story-title">{chap.title}</h2>
+            <h2 className="story-title">
+              {activeChapterIndex === idx ? (
+                <ScrambleText text={chap.title} triggerKey={activeChapterIndex} duration={500} as="span" />
+              ) : (
+                chap.title
+              )}
+            </h2>
             <h3 className="story-subtitle">{chap.subtitle}</h3>
             <p className="story-description">{chap.description}</p>
 
@@ -77,9 +91,12 @@ export default function ScrollStages({ activeChapterIndex, onJumpToChapter }) {
       {/* Exhibit Colophon & Technical Footer */}
       <footer className="exhibit-colophon-section" aria-label="Apollo Lunar Module Exhibit Colophon">
         <div className="colophon-card">
+          <ParticleFooter />
           <div className="colophon-header">
             <span className="colophon-tag">EXHIBIT ARCHIVE // APOLLO LM-5</span>
-            <h2 className="colophon-title">Mission Engineering Archive</h2>
+            <h2 className="colophon-title">
+              <ScrambleText text="Mission Engineering Archive" triggerKey={activeChapterIndex} duration={600} />
+            </h2>
             <p className="colophon-subtitle">
               Curated spatial deconstruction of Grumman Aircraft Engineering Corp. Lunar Excursion Module architecture.
             </p>

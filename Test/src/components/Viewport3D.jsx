@@ -172,6 +172,31 @@ export default function Viewport3D({
     const stars = new THREE.Points(starGeo, starMat);
     scene.add(stars);
 
+    // Floating volumetric cosmic dust particles (igloo.inc style spatial atmosphere)
+    const dustCount = 350;
+    const dustGeo = new THREE.BufferGeometry();
+    const dustPos = new Float32Array(dustCount * 3);
+    const dustVel = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount * 3; i += 3) {
+      dustPos[i] = (Math.random() - 0.5) * 16;
+      dustPos[i + 1] = Math.random() * 8 + 0.2;
+      dustPos[i + 2] = (Math.random() - 0.5) * 16;
+
+      dustVel[i] = (Math.random() - 0.5) * 0.002;
+      dustVel[i + 1] = (Math.random() - 0.5) * 0.001;
+      dustVel[i + 2] = (Math.random() - 0.5) * 0.002;
+    }
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+    const dustMat = new THREE.PointsMaterial({
+      color: 0x38bdf8,
+      size: 0.06,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending
+    });
+    const dustPoints = new THREE.Points(dustGeo, dustMat);
+    scene.add(dustPoints);
+
     // High-Tech Telemetry Ground Pedestal (Igloo Aesthetic)
     const groundGeo = new THREE.CylinderGeometry(7.2, 7.5, 0.1, 64);
     const groundMat = new THREE.MeshBasicMaterial({ color: 0x07090e });
@@ -246,6 +271,24 @@ export default function Viewport3D({
           currentProgressRef.current += diff * 0.085;
           applyBreakdownProgress(meshes, currentProgressRef.current);
         }
+      }
+
+      // Atmospheric spatial cosmic dust drifting (igloo.inc style)
+      if (dustGeo && dustGeo.attributes.position) {
+        const posArr = dustGeo.attributes.position.array;
+        for (let i = 0; i < dustCount * 3; i += 3) {
+          posArr[i] += dustVel[i];
+          posArr[i + 1] += dustVel[i + 1] + Math.sin(time * 0.0008 + i) * 0.0004;
+          posArr[i + 2] += dustVel[i + 2];
+
+          if (posArr[i] < -8) posArr[i] = 8;
+          if (posArr[i] > 8) posArr[i] = -8;
+          if (posArr[i + 1] < 0.2) posArr[i + 1] = 8.2;
+          if (posArr[i + 1] > 8.2) posArr[i + 1] = 0.2;
+          if (posArr[i + 2] < -8) posArr[i + 2] = 8;
+          if (posArr[i + 2] > 8) posArr[i + 2] = -8;
+        }
+        dustGeo.attributes.position.needsUpdate = true;
       }
 
       const p = currentProgressRef.current;
