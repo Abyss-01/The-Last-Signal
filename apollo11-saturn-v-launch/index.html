@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apollo 11 — Saturn V Launch & Stage Separation</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Import Map for Three.js & Addons -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+</head>
+<body>
+  <!-- Persistent Fixed WebGL Viewport -->
+  <canvas id="launch-canvas"></canvas>
+
+  <!-- Loading Overlay -->
+  <div id="loader-overlay" class="loader-overlay">
+    <div class="loader-box">
+      <div class="loader-title">INITIALIZING SATURN V TELEMETRY</div>
+      <div class="loader-bar-track">
+        <div id="loader-bar-fill" class="loader-bar-fill"></div>
+      </div>
+      <div id="loader-status" class="loader-status">LOADING ASSET /assets/saturn_v.glb...</div>
+    </div>
+  </div>
+
+  <!-- Minimalist Apollo 11 Telemetry HUD -->
+  <header class="hud-overlay">
+    <div class="hud-top">
+      <div class="hud-mission-block">
+        <p class="hud-eyebrow">KENNEDY SPACE CENTER &bull; LC-39A</p>
+        <h1 class="hud-title">APOLLO 11 &mdash; SATURN V</h1>
+        <p class="hud-date">JULY 16, 1969 &bull; 13:32:00 UTC</p>
+      </div>
+
+      <div class="hud-met-block">
+        <p class="hud-eyebrow">MISSION ELAPSED TIME</p>
+        <p id="hud-met" class="hud-met-value">T-00:00:15</p>
+        <div class="hud-stage-badge">
+          <span class="status-dot"></span>
+          <span>STAGE: <strong id="hud-stage">S-IC</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll Progress Scrub Indicator -->
+    <div class="hud-progress-rail">
+      <div id="hud-progress-fill" class="hud-progress-fill"></div>
+    </div>
+
+    <div id="hud-countdown" class="hud-countdown" aria-live="off" hidden></div>
+
+    <aside class="mission-card" aria-live="polite" aria-atomic="true">
+      <p id="hud-note-eyebrow" class="hud-eyebrow">APOLLO 11 MISSION</p>
+      <h2 id="hud-note-title" class="mission-card-title">A quiet morning at the Cape</h2>
+      <p id="hud-note-body" class="mission-card-body">Saturn V stands ready on Pad 39A.</p>
+    </aside>
+
+    <div class="hud-bottom">
+      <div class="hud-phase-block">
+        <p class="hud-eyebrow">SEQUENCE PHASE</p>
+        <p id="hud-phase-label" class="hud-phase-value">LAUNCH COMPLEX 39A &mdash; TERMINAL COUNT</p>
+        <p id="hud-scroll-hint" class="hud-scroll-hint">SCROLL TO INITIATE LAUNCH SEQUENCE &darr;</p>
+      </div>
+
+    </div>
+    <nav class="mission-controls" aria-label="Mission playback controls">
+      <div class="transport-controls">
+        <button id="previous-event" class="control-button" type="button" aria-label="Previous mission event" title="Previous event">|‹</button>
+        <button id="play-toggle" class="control-button control-primary" type="button" aria-label="Play mission">PLAY</button>
+        <button id="replay-mission" class="control-button" type="button" aria-label="Replay mission" title="Replay from the beginning">REPLAY</button>
+        <button id="restart-mission" class="control-button" type="button" aria-label="Restart mission" title="Restart mission">RESET</button>
+        <button id="next-event" class="control-button" type="button" aria-label="Next mission event" title="Next event">›|</button>
+      </div>
+      <label class="scrub-control" for="mission-scrubber">
+        <span class="sr-only">Mission progress</span>
+        <input id="mission-scrubber" type="range" min="0" max="1000" value="0" step="1" />
+      </label>
+      <div class="option-controls">
+        <label class="select-control">CAMERA
+          <select id="camera-mode" aria-label="Camera mode">
+            <option value="cinematic">Cinematic</option>
+            <option value="follow">Follow</option>
+            <option value="wide">Wide</option>
+            <option value="inspect">Inspect</option>
+          </select>
+        </label>
+        <label class="select-control">PART
+          <select id="component-select" aria-label="Select a rocket section">
+            <option value="">Select section</option>
+            <option value="sic">S-IC · First stage</option>
+            <option value="sii">S-II · Second stage</option>
+            <option value="sivb">S-IVB · Third stage</option>
+            <option value="csm">Upper spacecraft stack</option>
+          </select>
+        </label>
+        <label class="select-control speed-control">SPEED
+          <select id="playback-speed" aria-label="Playback speed">
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.5">1.5×</option>
+          </select>
+        </label>
+        <button id="info-toggle" class="control-button" type="button" aria-pressed="true">INFO</button>
+        <button id="sound-toggle" class="control-button" type="button" aria-pressed="false">SOUND OFF</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Deterministic Scroll Runway (0.0 -> 1.0) -->
+  <main id="scroll-runway" class="scroll-runway"></main>
+
+  <script>
+    // Module import failures (for example, opening this page with file:// or
+    // being offline from the CDN) happen before the app can update its loader.
+    window.addEventListener('error', (event) => {
+      const status = document.getElementById('loader-status');
+      if (status && !window.__apolloAppStarted) {
+        status.textContent = 'STARTUP FAILED — serve this folder over HTTP and check the browser console.';
+      }
+    });
+    window.addEventListener('unhandledrejection', () => {
+      const status = document.getElementById('loader-status');
+      if (status && !window.__apolloAppStarted) {
+        status.textContent = 'STARTUP FAILED — check your connection and the browser console.';
+      }
+    });
+    window.setTimeout(() => {
+      const status = document.getElementById('loader-status');
+      if (status && !window.__apolloAppStarted && location.protocol === 'file:') {
+        status.textContent = 'STARTUP BLOCKED — run START-APOLLO.bat, then open http://localhost:8080.';
+      }
+    }, 1500);
+  </script>
+  <section id="static-fallback" class="static-fallback" hidden aria-labelledby="fallback-title">
+    <div class="fallback-copy">
+      <p class="hud-eyebrow">KENNEDY SPACE CENTER · JULY 16, 1969</p>
+      <h2 id="fallback-title">Apollo 11</h2>
+      <p class="fallback-subtitle">SATURN V · LAUNCH COMPLEX 39A</p>
+      <p id="fallback-message" class="fallback-message"></p>
+      <p class="fallback-description">Five engines lifted the three-stage Saturn V into Earth orbit. The S-IVB restarted for translunar injection, carrying the Apollo spacecraft toward the Moon.</p>
+    </div>
+    <svg class="fallback-rocket" viewBox="0 0 180 580" role="img" aria-label="Illustration of a Saturn V rocket on its launch pad">
+      <defs>
+        <linearGradient id="rocket-body" x1="0" x2="1">
+          <stop offset="0" stop-color="#aab2ba"/><stop offset=".22" stop-color="#f6f4ed"/><stop offset=".74" stop-color="#d8dce0"/><stop offset="1" stop-color="#8d969f"/>
+        </linearGradient>
+        <linearGradient id="fallback-flame" x1="0" x2="0" y1="0" y2="1">
+          <stop stop-color="#fff8dc"/><stop offset=".35" stop-color="#ffcc6a"/><stop offset="1" stop-color="#e87830" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M89 12 110 48 110 85 119 95 119 270 114 278 114 405 120 420 120 482 113 494 108 509 70 509 65 494 58 482 58 420 64 405 64 278 59 270 59 95 68 85 68 48Z" fill="url(#rocket-body)" stroke="#fff" stroke-opacity=".42"/>
+      <path d="M68 85h42v18H68zm-9 185h60v17H59zm5 135h50v18H64z" fill="#242a31"/>
+      <path d="M68 48h42v37H68z" fill="#f0eee8"/><path d="M73 61h32v8H73z" fill="#1d2734"/>
+      <path d="M78 509h9v27h-9zm15 0h9v27h-9z" fill="#25282b"/>
+      <path d="M82 534h16l21 45H61z" fill="url(#fallback-flame)" opacity=".88"/>
+      <path d="M20 536h13V177h12v359h18v12H20zm127 0h13V177h-12v359h-18v12h17z" fill="#bd573c" opacity=".78"/>
+      <path d="M34 235h26m86 0h-26M34 310h28m84 0h-28M34 387h30m80 0h-30M34 464h28m84 0h-28" stroke="#d6a44e" stroke-width="5"/>
+      <path d="M4 580h172" stroke="#92989b" stroke-width="5"/>
+    </svg>
+  </section>
+  <script>
+    const fallback = document.getElementById('static-fallback');
+    const showFallback = (message) => {
+      document.getElementById('launch-canvas').style.display = 'none';
+      document.querySelector('.hud-overlay').style.display = 'none';
+      document.getElementById('loader-overlay').classList.add('hidden');
+      document.getElementById('scroll-runway').style.display = 'none';
+      document.getElementById('fallback-message').textContent = message;
+      fallback.hidden = false;
+      window.__apolloAppStarted = true;
+    };
+
+    try {
+      if (!document.createElement('canvas').getContext('webgl2')) {
+        showFallback('WebGL 2 is unavailable in this browser. The mission overview is shown below.');
+      } else {
+        import('./js/main.js').catch(() => {
+          showFallback('The interactive scene could not start. Use START-APOLLO.bat and check your internet connection.');
+        });
+      }
+    } catch (_) {
+      showFallback('This browser cannot initialize the interactive launch scene.');
+    }
+  </script>
+</body>
+</html>
